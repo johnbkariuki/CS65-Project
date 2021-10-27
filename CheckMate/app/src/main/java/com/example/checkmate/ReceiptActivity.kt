@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
-class PaymentActivity : AppCompatActivity() {
+class ReceiptActivity : AppCompatActivity() {
 
     companion object {
         // toast messages
@@ -14,7 +14,7 @@ class PaymentActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_payment)
+        setContentView(R.layout.activity_receipt)
     }
 
     // for when user submits receipt

@@ -5,7 +5,7 @@
         android:id="@+id/historyFragment"/>
     <item android:title="@string/payment_title"
         android:icon="@drawable/ic_payment"
-        android:id="@+id/paymentActivity"/>
+        android:id="@+id/receiptActivity"/>
     <item android:title="@string/profile_title"
         android:icon="@drawable/ic_profile"
         android:id="@+id/profileFragment"/>

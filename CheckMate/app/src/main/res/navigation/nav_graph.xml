@@ -11,10 +11,10 @@
         android:label="fragment_history"
         tools:layout="@layout/fragment_history" />
     <activity
-        android:id="@+id/paymentActivity"
-        android:name="com.example.checkmate.PaymentActivity"
-        android:label="activity_payment"
-        tools:layout="@layout/activity_payment" />
+        android:id="@+id/receiptActivity"
+        android:name="com.example.checkmate.ReceiptActivity"
+        android:label="activity_receipt"
+        tools:layout="@layout/activity_receipt" />
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.checkmate.ProfileFragment"
