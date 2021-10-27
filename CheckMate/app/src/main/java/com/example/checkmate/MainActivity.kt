@@ -18,5 +18,8 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setupWithNavController(
             navController
         )
+
+        // get user permissions
+        Util.checkPermissions(this)
     }
 }
