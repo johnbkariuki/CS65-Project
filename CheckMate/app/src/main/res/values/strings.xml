@@ -12,4 +12,15 @@
     <string name="submit_button">Submit</string>
     <string name="title_activity_receipt">PaymentActivity</string>
 
+
+    <!-- sign in/sign up activities -->
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="Venmo">Venmo</string>
+    <string name="cancel">Cancel</string>
+
+
 </resources>

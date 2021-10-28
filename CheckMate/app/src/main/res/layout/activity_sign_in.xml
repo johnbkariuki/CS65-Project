@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/sign_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sign_in"
+            android:textSize="35sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="100dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginBottom="50dp"
+            />
+
+        <TextView
+            android:id="@+id/email_sign_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="@string/email"
+            android:layout_gravity="center" />
+
+        <EditText
+            android:id="@+id/email_sign_in_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/password_sign_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="@string/password"
+            android:layout_gravity="center" />
+
+        <EditText
+            android:id="@+id/password__sign_in_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:ems="10"
+            android:inputType="textPassword"
+            android:layout_gravity="center"
+            android:layout_marginBottom="40dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            >
+
+            <Button
+                android:id="@+id/submit_sign_in"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="20dp"
+                android:onClick="onSignInSubmitClicked"
+                android:text="@string/submit_button"
+                />
+
+            <Button
+                android:id="@+id/cancel_sign_in"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="20dp"
+                android:onClick="onSignInCancelClicked"
+                android:text="@string/cancel" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

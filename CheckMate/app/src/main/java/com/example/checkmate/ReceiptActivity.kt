@@ -41,6 +41,10 @@ class ReceiptActivity : AppCompatActivity() {
 //        }
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
     // for when user submits receipt
     fun onSubmitReceipt(view: View) {
 
