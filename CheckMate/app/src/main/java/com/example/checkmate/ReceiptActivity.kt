@@ -31,6 +31,7 @@ class ReceiptActivity : AppCompatActivity() {
         cameraResult.launch(intent)
     }
 
+    // what to do with photo after taken 
     val cameraResult: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     )
