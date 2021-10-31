@@ -21,6 +21,13 @@
     <string name="password">Password</string>
     <string name="Venmo">Venmo</string>
     <string name="cancel">Cancel</string>
-
+    <string name="signup_error_message">Make sure you don\'t leave anything blank!</string>
+    <string name="signup_error_message2">Make sure your password is more than 6 characters long!</string>
+    <string name="signup_error_title">Whoops!</string>
+    <string name="signin_error_title">Whoops!</string>
+    <string name="signin_error_message">We couldn\'t find your profile in our database. Try something else!</string>
+    <string name="signin_error_message2">This password didn\'t match the one you gave us. Try something else!</string>
+    <string name="signin_error_message3">Please input a valid username or password.</string>
+    <string name="signin_error_message4">We couldn\'t match your profile in our database. Try a different password or username!</string>
 
 </resources>

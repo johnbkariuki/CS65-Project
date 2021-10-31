@@ -4,11 +4,13 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../../../layout/custom_preview.xml" value="0.23541666666666666" />
+        <entry key="../../../../../layout/custom_preview.xml" value="0.10277777777777777" />
+        <entry key="app/src/main/res/drawable/ic_payment.xml" value="0.10277777777777777" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.22447916666666667" />
         <entry key="app/src/main/res/layout/activity_receipt.xml" value="0.22447916666666667" />
         <entry key="app/src/main/res/layout/activity_sign_in.xml" value="0.31521739130434784" />
         <entry key="app/src/main/res/layout/activity_sign_up.xml" value="0.32344379229699627" />
-        <entry key="app/src/main/res/layout/activity_signin_signup.xml" value="0.4034775941414393" />
+        <entry key="app/src/main/res/layout/activity_signin_signup.xml" value="0.10101010101010101" />
         <entry key="app/src/main/res/layout/fragment_history.xml" value="0.22447916666666667" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.22447916666666667" />
         <entry key="app/src/main/res/menu/bottom_nav.xml" value="0.16614583333333333" />
