@@ -37,6 +37,7 @@
             android:layout_marginTop="0dp"
             android:ems="10"
             android:inputType="textPersonName"
+            android:hint="What's your email?"
             android:layout_gravity="center" />
 
         <TextView
@@ -48,12 +49,13 @@
             android:layout_gravity="center" />
 
         <EditText
-            android:id="@+id/password__sign_in_edittext"
+            android:id="@+id/password_sign_in_edittext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="0dp"
             android:ems="10"
             android:inputType="textPassword"
+            android:hint="What's your password?"
             android:layout_gravity="center"
             android:layout_marginBottom="40dp"/>
 

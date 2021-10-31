@@ -23,8 +23,6 @@ class MainActivity : AppCompatActivity() {
         pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE)
         loggedIn = pref.getBoolean(LOGGED_IN_KEY, false)
 
-        println("debug: $loggedIn")
-
         if(!loggedIn){
             logInIntent = Intent(this, SignInSignUpActivity::class.java)
             startActivity(logInIntent)
@@ -43,28 +41,35 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        println("Debug: Here")
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        /*
         editor = pref.edit()
         editor.putBoolean(LOGGED_IN_KEY,false)
         editor.commit()
         println("debug destroy:${pref.getBoolean(LOGGED_IN_KEY, false)}")
+        */
     }
 
+    /*
     override fun onBackPressed() {
-        super.onBackPressed()
+        //super.onBackPressed()
+        /*
         editor = pref.edit()
-        editor.putBoolean(LOGGED_IN_KEY,false)
+        if (loggedIn) editor.putBoolean(LOGGED_IN_KEY,true)
+        else editor.putBoolean(LOGGED_IN_KEY, false)
         editor.commit()
 
-        logInIntent = Intent(this, SignInSignUpActivity::class.java)
-        startActivity(logInIntent)
-    }
+         */
 
-    companion object{
+        //logInIntent = Intent(this, SignInSignUpActivity::class.java)
+        //startActivity(logInIntent)
+    }
+     */
+
+    companion object {
         val LOGGED_IN_KEY = "logged_in_key"
         val MY_PREFERENCES = "My_Preferences"
     }

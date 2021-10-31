@@ -51,6 +51,11 @@ class ReceiptActivity : AppCompatActivity() {
 
         // display toast and exit activity
         Toast.makeText(this, RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
+
+        // parse the receipt and apply text recognition
+        // itemize the receipt into a receipt object
+        // launch the user select activity
+
         finish()
     }
 }

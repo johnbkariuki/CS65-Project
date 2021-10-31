@@ -8,6 +8,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/historyWelcomeText"
         android:layout_margin="@dimen/text_margin"
-        android:text="History Fragment: to display user's payment history"/>
+        android:textSize="25sp"/>
 </androidx.core.widget.NestedScrollView>
