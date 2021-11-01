@@ -32,6 +32,20 @@
         <activity android:name=".SignInActivity" android:screenOrientation="portrait"/>
         <activity android:name=".SignUpActivity" android:screenOrientation="portrait"/>
         <activity android:name=".SignInSignUpActivity" android:screenOrientation="portrait"/>
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"/>
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="ocr" />
+        <!-- To use multiple models: android:value="ocr,model2,model3" -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.checkmate"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_path"></meta-data>
+        </provider>
     </application>
 
 </manifest>

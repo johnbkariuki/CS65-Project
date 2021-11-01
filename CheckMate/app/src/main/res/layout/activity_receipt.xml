@@ -14,7 +14,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/text_margin"
-            android:text="Receipt Activity: to display receipt document"/>
+            android:text="Receipt"
+            android:layout_gravity="center"
+            android:textSize="20sp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/receiptInfo">
+
+        </LinearLayout>
 
         <Button
             android:layout_height="wrap_content"
