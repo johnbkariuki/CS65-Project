@@ -30,5 +30,7 @@
     <string name="signin_error_message2">This password didn\'t match the one you gave us. Try something else!</string>
     <string name="signin_error_message3">Please input a valid username or password.</string>
     <string name="signin_error_message4">We couldn\'t match your profile in our database. Try a different password or username!</string>
+    <string name="profile_fragment_logout">Logout</string>
+    <string name="profile_fragment_save">SAVE</string>
 
 </resources>
