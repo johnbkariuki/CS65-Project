@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">CheckMate</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--  navigation bar  -->
+    <string name="history_title">History</string>
+    <string name="payment_title">New Payment</string>
+    <string name="profile_title">Profile</string>
+
+    <!-- receipt activity  -->
+    <string name="submit_button">Submit</string>
+    <string name="title_activity_receipt">PaymentActivity</string>
+    <string name="receipt_header">Receipt</string>
+    <string name="popup_add">Add Payer</string>
+
+    <!-- sign in/sign up activities -->
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="Venmo">Venmo</string>
+    <string name="cancel">Cancel</string>
+    <string name="signup_error_message">Make sure you don\'t leave anything blank!</string>
+    <string name="signup_error_message2">Make sure your password is more than 6 characters long!</string>
+    <string name="signup_error_title">Whoops!</string>
+    <string name="signin_error_title">Whoops!</string>
+    <string name="signin_error_message">We couldn\'t find your profile in our database. Try something else!</string>
+    <string name="signin_error_message2">This password didn\'t match the one you gave us. Try something else!</string>
+    <string name="signin_error_message3">Please input a valid username or password.</string>
+    <string name="signin_error_message4">We couldn\'t match your profile in our database. Try a different password or username!</string>
+    <string name="profile_fragment_logout">Logout</string>
+    <string name="profile_fragment_save">SAVE</string>
+
 </resources>
