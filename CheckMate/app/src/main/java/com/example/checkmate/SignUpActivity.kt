@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SignUpActivity: AppCompatActivity() {
     companion object {
@@ -29,6 +30,7 @@ class SignUpActivity: AppCompatActivity() {
     private lateinit var mFirebaseUser: FirebaseUser
     private lateinit var mUserId: String
     private lateinit var mDatabase: DatabaseReference
+    private lateinit var mFirebaseFirestore: FirebaseFirestore
 
     private val TOAST_TEXT = "Success! Profile Created!"
 
@@ -42,7 +44,8 @@ class SignUpActivity: AppCompatActivity() {
         venmoText = findViewById(R.id.venmo_edittext)
 
         mFirebaseAuth = FirebaseAuth.getInstance()
-        mDatabase = FirebaseDatabase.getInstance().getReference()
+        mDatabase = FirebaseDatabase.getInstance().reference
+        mFirebaseFirestore = FirebaseFirestore.getInstance()
     }
 
     fun onSignUpSubmitClicked(view: View){
@@ -104,18 +107,34 @@ class SignUpActivity: AppCompatActivity() {
         else {
             // create the user and add to the database
             mFirebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                if (task.isComplete()) {
+                if (task.isComplete) {
                     mFirebaseAuth.signInWithEmailAndPassword(email, password)
-                    mFirebaseUser = mFirebaseAuth.currentUser!!
-                    mUserId = mFirebaseUser.uid
+                    if (mFirebaseAuth.currentUser != null) {
+                        mFirebaseUser = mFirebaseAuth.currentUser!!
+                        mUserId = mFirebaseUser.uid
 
-                    // input into database
-                    val user = User(username, email, password, venmo)
-                    mDatabase.child("users").child(mUserId).child("user").child("username").push().setValue(user.username)
-                    mDatabase.child("users").child(mUserId).child("user").child("email").push().setValue(user.email)
-                    mDatabase.child("users").child(mUserId).child("user").child("password").push().setValue(user.password)
-                    mDatabase.child("users").child(mUserId).child("user").child("venmo").push().setValue(user.venmo)
+                        // input into database
+                        val user = User(username, email, password, venmo)
+                        mDatabase.child("users").child(mUserId).child("user").child("username")
+                            .push().setValue(user.username)
+                        mDatabase.child("users").child(mUserId).child("user").child("email")
+                            .push()
+                            .setValue(user.email)
+                        mDatabase.child("users").child(mUserId).child("user").child("password")
+                            .push().setValue(user.password)
+                        mDatabase.child("users").child(mUserId).child("user").child("venmo")
+                            .push()
+                            .setValue(user.venmo)
+
+                        // input into firestore
+                        mFirebaseFirestore.collection("users").document(mUserId).set(user).addOnCompleteListener {
+                            println("debug: @$mUserId successfully added to Firestore ($mFirebaseFirestore)")
+                        }.addOnFailureListener {
+                            println("debug: @$mUserId failed to be added to Firestore ($mFirebaseFirestore)")
+                        }
+                    }
                 }
+                else println("sign up failed")
             }
             return true
         }
