@@ -12,7 +12,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import org.w3c.dom.Text
 
 class ProfileFragment : Fragment() {
     // views
@@ -20,6 +22,7 @@ class ProfileFragment : Fragment() {
     private lateinit var saveButton: Button
     private lateinit var usernameText: TextView
     private lateinit var emailText: TextView
+    private lateinit var venmoText: TextView
 
     // firebase and shared prefs
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -49,6 +52,8 @@ class ProfileFragment : Fragment() {
         mFirebaseAuth = FirebaseAuth.getInstance()
         mFirebaseFirestore = FirebaseFirestore.getInstance()
         mFirebaseAuth.signInWithEmailAndPassword(email, password)
+
+
         if (mFirebaseAuth.currentUser != null) {
             mCurrUser = mFirebaseAuth.currentUser!!
             mUserId = mCurrUser.uid
@@ -92,19 +97,29 @@ class ProfileFragment : Fragment() {
         emailText = view.findViewById(R.id.email_profile)
         if (email.isNotEmpty()) emailText.text = email
 
-        // username and venmo
+        // username
         usernameText = view.findViewById(R.id.username_profile)
         if (username.isNotEmpty()) usernameText.text = username
+
+        // venmo
+        venmoText = view.findViewById(R.id.venmo_profile)
+        if (venmo.isNotEmpty()) venmoText.text = venmo
+
         else {
             // firestore specific
             mFirebaseFirestore.collection("users").document(mUserId).get()
                 .addOnSuccessListener {
-                    // println("debug: $it") // debugging purposes
+
+                    println("debug: $it") // debugging purposes
                     usernameText.text = it.data!!["username"].toString()
-                    venmo = it.data!!["venmo"].toString()
+                    venmoText.text = it.data!!["venmo"].toString()
                 }
+
             // email & username
-            username = usernameText.text.toString()
+//            emailText.text = email
+//            username= usernameText.text
+//            venmo = venmoText.text
+//            println("debug:${venmoText.text}")
         }
     }
 }

@@ -150,12 +150,15 @@ class ReceiptActivity : AppCompatActivity() {
         for (i in 0 until blocks.size) {
             println("debug: --------")
             val block = blocks[i]
-            for (line in block.lines) {
+
+            for (j in 0 until block.lines.size) {
+                var line = block.lines[j]
+
                 val debugLine = line.text
                 println("debug: $debugLine")
                 // if on receipt line item
                 if (line.text[0] == '$' || isPrice(line.text)) {
-                    val item = blocks[i - 1].lines[0].text
+                    val item = blocks[i - 1].lines[j].text
                     val price = line.text.slice(IntRange(1, line.text.length - 1)).toFloat()
                     // display receipt line item
                     val receiptItem = Pair(item, price)

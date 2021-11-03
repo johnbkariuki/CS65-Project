@@ -37,6 +37,7 @@ class SignInActivity : AppCompatActivity() {
 
     @Throws(FirebaseAuthInvalidUserException::class)
     fun onSignInSubmitClicked(view: View){
+
         // grab email and password
         val email = emailText.text.toString().trim()
         val password = passwordText.text.toString().trim()
@@ -54,6 +55,7 @@ class SignInActivity : AppCompatActivity() {
             // try-catch block for signing in
             try {
                 mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
+
                     // shared prefs
                     val pref: SharedPreferences = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
                     val editor: SharedPreferences.Editor = pref.edit()
