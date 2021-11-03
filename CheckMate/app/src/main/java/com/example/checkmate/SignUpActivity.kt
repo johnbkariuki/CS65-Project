@@ -114,7 +114,7 @@ class SignUpActivity: AppCompatActivity() {
                         mUserId = mFirebaseUser.uid
 
                         // input into database
-                        val user = User(username, email, password, venmo)
+                        val user = User(username, email, password, venmo, generateKeywords(username))
                         mDatabase.child("users").child(mUserId).child("user").child("username")
                             .push().setValue(user.username)
                         mDatabase.child("users").child(mUserId).child("user").child("email")
@@ -125,6 +125,9 @@ class SignUpActivity: AppCompatActivity() {
                         mDatabase.child("users").child(mUserId).child("user").child("venmo")
                             .push()
                             .setValue(user.venmo)
+                        mDatabase.child("users").child(mUserId).child("user").child("keywords")
+                            .push()
+                            .setValue(user.keywords)
 
                         // input into firestore
                         mFirebaseFirestore.collection("users").document(mUserId).set(user).addOnCompleteListener {
@@ -138,6 +141,16 @@ class SignUpActivity: AppCompatActivity() {
             }
             return true
         }
+    }
+
+    private fun generateKeywords(username: String): List<String> {
+        val keywords = mutableListOf<String>()
+        for (i in 0 until username.length) {
+            for (j in (i+1)..username.length) {
+                keywords.add(username.slice(i until j))
+            }
+        }
+        return keywords
     }
 
     fun onSignUpCancelClicked(view: View){
