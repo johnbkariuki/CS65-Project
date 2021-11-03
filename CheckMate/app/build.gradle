@@ -8,6 +8,7 @@ plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
     id 'kotlin-android'
+    id 'com.chaquo.python'
 }
 
 task wrapper(type: Wrapper){
@@ -25,6 +26,17 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+
+        python {
+            pip {
+                install "matplotlib"
+                install "venmo-api"
+            }
+        }
     }
 
     buildTypes {
