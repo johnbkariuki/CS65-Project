@@ -8,11 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ProfileFragment : Fragment() {
     // views
@@ -20,16 +20,18 @@ class ProfileFragment : Fragment() {
     private lateinit var saveButton: Button
     private lateinit var usernameText: TextView
     private lateinit var emailText: TextView
-    private lateinit var userImage: ImageView
 
     // firebase and shared prefs
     private lateinit var mFirebaseAuth: FirebaseAuth
+    private lateinit var mFirebaseFirestore: FirebaseFirestore
     private lateinit var mCurrUser: FirebaseUser
+    private lateinit var mUserId: String
     private lateinit var pref: SharedPreferences
 
     private var email=""
     private var username=""
     private var password=""
+    private var venmo=""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,9 +47,14 @@ class ProfileFragment : Fragment() {
 
         // firebase and load the view
         mFirebaseAuth = FirebaseAuth.getInstance()
+        mFirebaseFirestore = FirebaseFirestore.getInstance()
         mFirebaseAuth.signInWithEmailAndPassword(email, password)
-        mCurrUser = mFirebaseAuth.currentUser!!
-        loadView(view)
+        if (mFirebaseAuth.currentUser != null) {
+            mCurrUser = mFirebaseAuth.currentUser!!
+            mUserId = mCurrUser.uid
+
+            loadView(view)
+        }
 
         // set onclick listeners
         // logoutButton
@@ -80,13 +87,24 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadView(view: View) {
-        // set email text
+        // set views if not empty
+        // email
         emailText = view.findViewById(R.id.email_profile)
-        emailText.setText(email)
+        if (email.isNotEmpty()) emailText.text = email
 
-        // set username text
+        // username and venmo
         usernameText = view.findViewById(R.id.username_profile)
-        //username = mCurrUser.displayName!!
-        // set profile image
+        if (username.isNotEmpty()) usernameText.text = username
+        else {
+            // firestore specific
+            mFirebaseFirestore.collection("users").document(mUserId).get()
+                .addOnSuccessListener {
+                    // println("debug: $it") // debugging purposes
+                    usernameText.text = it.data!!["username"].toString()
+                    venmo = it.data!!["venmo"].toString()
+                }
+            // email & username
+            username = usernameText.text.toString()
+        }
     }
 }
