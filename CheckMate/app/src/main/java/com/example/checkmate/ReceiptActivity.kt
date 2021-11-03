@@ -26,6 +26,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.theartofdev.edmodo.cropper.CropImage
 import java.io.File
 import android.widget.CheckedTextView
+import androidx.lifecycle.Observer
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -81,12 +82,11 @@ class ReceiptActivity : AppCompatActivity() {
         // creating checklist to format receipt
         adapter = ReceiptListAdapter(this, receiptList)
         receiptListView.adapter = adapter
-        // when item on receipt list is clicked
-        receiptListView.setOnItemClickListener { adapterView, view, i, l ->
-            // check item
-            val checkedTextView = view as CheckedTextView
-            checkedTextView.isChecked = !checkedTextView.isChecked
-        }
+        // observe changes in popup button display
+        adapter.payersMap.observe(this, Observer {it ->
+            adapter.notifyDataSetChanged()
+            println("debug: payersMap updated")
+        })
 
         // accessing firebase
         mFirebaseAuth = FirebaseAuth.getInstance()

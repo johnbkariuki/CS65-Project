@@ -4,12 +4,21 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import kotlin.math.floor
 
 // for formatting items in the receipt list
 class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String, Float>>) : BaseAdapter(){
 
     private lateinit var selectPayerButton: Button
+//    private var payers = mutableMapOf<Int, String>()  // key = row, value = username
+
+    private val _payersMap = MutableLiveData<MutableMap<Int, String>>()
+    val payersMap: LiveData<MutableMap<Int, String>>
+        get() {
+            return _payersMap
+        }
 
     override fun getItem(position: Int): Any {
         return receiptList[position]
@@ -41,19 +50,19 @@ class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String
 
         selectPayerButton.text = payerString
         selectPayerButton.setOnClickListener {
-            showPopupMenu(selectPayerButton)
+            showPopupMenu(selectPayerButton, position)
         }
-
         return view
     }
 
     // allows user to select current payer
-    fun showPopupMenu(view: View) {
+    fun showPopupMenu(view: View, position: Int) {
         PopupMenu(view.context, view).apply {
             menuInflater.inflate(R.menu.popup_menu, menu)
 
             setOnMenuItemClickListener { item ->
                 Toast.makeText(view.context, "You Clicked : " + item.title, Toast.LENGTH_SHORT).show()
+                _payersMap.value?.set(position, item.title.toString())
                 true
             }
         }.show()
