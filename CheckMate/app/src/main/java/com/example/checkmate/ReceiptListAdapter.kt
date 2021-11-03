@@ -12,13 +12,18 @@ import kotlin.math.floor
 class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String, Float>>) : BaseAdapter(){
 
     private lateinit var selectPayerButton: Button
-//    private var payers = mutableMapOf<Int, String>()  // key = row, value = username
 
+    // key = row position, value = payer username
+    private val payersMapStore = mutableMapOf<Int, String>()
     private val _payersMap = MutableLiveData<MutableMap<Int, String>>()
     val payersMap: LiveData<MutableMap<Int, String>>
         get() {
             return _payersMap
         }
+
+    companion object {
+        const val PAYER_STR = "Payer:"
+    }
 
     override fun getItem(position: Int): Any {
         return receiptList[position]
@@ -34,6 +39,8 @@ class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        println("debug: getView called")
+
         val view: View = View.inflate(context, R.layout.layout_receiptlist_adapter,null)
         val receiptLine = view.findViewById<TextView>(R.id.receipt_line)
 
@@ -44,11 +51,17 @@ class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String
         val lineDisplay = "$item ($$price)"
         receiptLine.text = lineDisplay
 
+        // select payer popup menu
         selectPayerButton = view.findViewById<Button>(R.id.select_payer_button)
-//        var payerString = "${ReceiptActivity.PAYER_STR} $currPayer"
-        var payerString = "${ReceiptActivity.PAYER_STR} "
-
+        var payer = ""
+        // if payer has been selected, display
+        if (payersMapStore.containsKey(position)) {
+            payer = payersMapStore[position].toString()
+        }
+        val payerString = "$PAYER_STR $payer"
         selectPayerButton.text = payerString
+
+        // listener for popup
         selectPayerButton.setOnClickListener {
             showPopupMenu(selectPayerButton, position)
         }
@@ -61,8 +74,11 @@ class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String
             menuInflater.inflate(R.menu.popup_menu, menu)
 
             setOnMenuItemClickListener { item ->
-                Toast.makeText(view.context, "You Clicked : " + item.title, Toast.LENGTH_SHORT).show()
-                _payersMap.value?.set(position, item.title.toString())
+                // update map with new payer
+                payersMapStore[position] = item.title.toString()
+                _payersMap.value = payersMapStore
+                val payersMapPrint = _payersMap.value
+                println("debug: payersMap = $payersMapPrint")
                 true
             }
         }.show()

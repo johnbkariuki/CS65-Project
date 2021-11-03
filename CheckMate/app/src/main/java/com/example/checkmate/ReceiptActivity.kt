@@ -57,7 +57,6 @@ class ReceiptActivity : AppCompatActivity() {
 
     companion object {
         const val RECEIPT_SUBMITTED_TOAST = "Receipt Submitted"
-        const val PAYER_STR = "Payer:"
     }
 
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
@@ -84,6 +83,7 @@ class ReceiptActivity : AppCompatActivity() {
         receiptListView.adapter = adapter
         // observe changes in popup button display
         adapter.payersMap.observe(this, Observer {it ->
+            // reload list with new popup displays
             adapter.notifyDataSetChanged()
             println("debug: payersMap updated")
         })
@@ -94,21 +94,7 @@ class ReceiptActivity : AppCompatActivity() {
         mFirebaseUser = mFirebaseAuth.currentUser!!
         mUserId = mFirebaseUser.uid
 
-        // Brandon: querying doesn't seem to work; datasnapshot always null
-//        val currUsernameRef = mDatabase.child("users").child(mUserId).child("user").child("username")
-//        currUsernameRef.addValueEventListener(object : ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                if (dataSnapshot.value != null) {
-//                    currPayer = dataSnapshot.value as String
-//                    println("debug: username = $currPayer")
-//                }
-//            }
-//            override fun onCancelled(databaseError: DatabaseError) {
-//                println("The read failed: " + databaseError.code)
-//            }
-//        })
-
-        // display button for user-selection popup menu
+        // display button for payer addition
         addPayerButton = findViewById<Button>(R.id.add_payer_button)
         addPayerButton.setOnClickListener {
             // launch activity
@@ -153,6 +139,8 @@ class ReceiptActivity : AppCompatActivity() {
             false
         }
     }
+
+    // Brandon: *** need to handle quantity for displayReceipt() *** //
 
     // displaying photo
     fun displayReceipt(text: Text){
