@@ -42,7 +42,7 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var receiptImage: InputImage
 
     // for UI
-    private lateinit var selectPayerButton: Button
+    private lateinit var addPayerButton: Button
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, Float>>()
     private lateinit var adapter: ReceiptListAdapter
@@ -109,33 +109,14 @@ class ReceiptActivity : AppCompatActivity() {
 //        })
 
         // display button for user-selection popup menu
-        selectPayerButton = findViewById<Button>(R.id.select_payer_button)
-        var payerString = "$PAYER_STR $currPayer"
-        selectPayerButton.text = payerString
-        selectPayerButton.setOnClickListener {
-            showPopupMenu(selectPayerButton)
+        addPayerButton = findViewById<Button>(R.id.add_payer_button)
+        addPayerButton.setOnClickListener {
+            // launch activity
         }
 
         // launching camera
         recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
         getReceipt()
-    }
-
-    // allows user to select current payer
-    fun showPopupMenu(view: View) {
-        PopupMenu(view.context, view).apply {
-            menuInflater.inflate(R.menu.popup_menu, menu)
-            val addPayerButton = menu.findItem(R.id.add_payer_button)
-
-            setOnMenuItemClickListener { item ->
-                Toast.makeText(view.context, "You Clicked : " + item.title, Toast.LENGTH_SHORT).show()
-                // if user clicks to add payer
-                if (item.itemId == addPayerButton.itemId) {
-                    println("debug: adding payer")
-                }
-                true
-            }
-        }.show()
     }
 
     // taking photo
