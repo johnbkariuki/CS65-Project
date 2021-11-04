@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 // for formatting items in the receipt list
-class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String, Float>>) : BaseAdapter(){
+class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<String, Float>>) : BaseAdapter(){
 
     private lateinit var selectPayerButton: Button
 

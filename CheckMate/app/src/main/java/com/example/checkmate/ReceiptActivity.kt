@@ -1,40 +1,30 @@
 package com.example.checkmate
 
-import android.app.ActionBar
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.media.Image
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.theartofdev.edmodo.cropper.CropImage
-import java.io.File
-import android.widget.CheckedTextView
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import java.lang.NumberFormatException
-import com.google.firebase.database.DatabaseError
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ReceiptActivity : AppCompatActivity() {
 
@@ -46,8 +36,7 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var addPayerButton: Button
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, Float>>()
-    private lateinit var adapter: ReceiptListAdapter
-    private var currPayer = ""
+    private lateinit var adapterEntry: ReceiptEntryListAdapter
 
     // for firebase
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -55,9 +44,18 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var mUserId: String
     private lateinit var mDatabase: DatabaseReference
 
+    // for saving receipt
+    private lateinit var receiptEntry: ReceiptEntry
+    private var title = ""
+    private var date = ""
+    private var payer = ""
+    private var priceList = arrayListOf<String>()
+    private var itemList = arrayListOf<String>()
+    private var payerList = arrayListOf<String>()
+
     companion object {
         const val RECEIPT_SUBMITTED_TOAST = "Receipt Submitted"
-        const val PAYER_STR = "Payer:"
+        val MONTHS = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sept", "Oct", "Nov", "Dec")
     }
 
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
@@ -82,13 +80,13 @@ class ReceiptActivity : AppCompatActivity() {
         receiptListView = findViewById<ListView>(R.id.receiptList)
 
         // creating checklist to format receipt
-        adapter = ReceiptListAdapter(this, receiptList)
-        receiptListView.adapter = adapter
+        adapterEntry = ReceiptEntryListAdapter(this, receiptList)
+        receiptListView.adapter = adapterEntry
 
         // observe changes in popup button display
-        adapter.payersMap.observe(this, Observer {it ->
+        adapterEntry.payersMap.observe(this, Observer { it ->
             // reload list with new popup displays
-            adapter.notifyDataSetChanged()
+            adapterEntry.notifyDataSetChanged()
             println("debug: payersMap updated")
         })
 
@@ -177,19 +175,49 @@ class ReceiptActivity : AppCompatActivity() {
                 }
             }
         }
-        adapter.notifyDataSetChanged()
+        adapterEntry.notifyDataSetChanged()
+    }
+
+    // saves receipt entry to database
+    fun saveReceiptEntry() {
+
+        // set up database and view model
+        val database = ReceiptEntryDatabase.getInstance(this)
+        val databaseDao = database.receiptEntryDatabaseDao
+        val viewModelFactory = ReceiptEntryViewModelFactory(databaseDao)
+        val receiptEntryViewModel = ViewModelProvider(this, viewModelFactory).get(ReceiptEntryViewModel::class.java)
+
+        // create entry object
+        receiptEntry = ReceiptEntry()
+
+        // get current date
+        val calendar = Calendar.getInstance()
+        val month = MONTHS[calendar.get(Calendar.MONTH)]
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val year = calendar.get(Calendar.YEAR)
+        date = "$month $day $year"
+
+        // setting entry column values
+        receiptEntry.title = title
+        receiptEntry.date = date
+        receiptEntry.payer = payer
+        receiptEntry.priceList = receiptEntryViewModel.ArrayList2Byte(priceList)
+        receiptEntry.itemList = receiptEntryViewModel.ArrayList2Byte(itemList)
+        receiptEntry.payerList = receiptEntryViewModel.ArrayList2Byte(payerList)
+
+        // insert into database
+        receiptEntryViewModel.insert(receiptEntry)
+
     }
 
     // for when user submits receipt
     fun onSubmitReceipt(view: View) {
 
+        // save receipt
+        saveReceiptEntry()
+
         // display toast and exit activity
         Toast.makeText(this, RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
-
-        // parse the receipt and apply text recognition
-        // itemize the receipt into a receipt object
-        // launch the user select activity
-
         finish()
     }
 }

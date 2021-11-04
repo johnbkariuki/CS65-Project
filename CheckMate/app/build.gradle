@@ -82,5 +82,11 @@ dependencies {
     // https://firebase.google.com/docs/android/setup#available-libraries
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:17.0.0'
     implementation 'com.google.firebase:firebase-ml-vision-image-label-model:20.0.2'
+
+    // Room components
+    apply plugin: 'kotlin-kapt'
+    implementation "androidx.room:room-ktx:2.3.0"
+    kapt "androidx.room:room-compiler:2.3.0"
+    androidTestImplementation "androidx.room:room-testing:2.3.0"
 }
 
