@@ -43,6 +43,7 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var receiptImage: InputImage
 
     // for UI
+    private lateinit var addPayerButton: Button
     private lateinit var selectPayerButton: Button
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, Float>>()
@@ -77,11 +78,20 @@ class ReceiptActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receipt)
+
+        setContentView(R.layout.activity_receipt)
         receiptListView = findViewById<ListView>(R.id.receiptList)
 
         // creating checklist to format receipt
         adapter = ReceiptListAdapter(this, receiptList)
         receiptListView.adapter = adapter
+
+        // observe changes in popup button display
+        adapter.payersMap.observe(this, Observer {it ->
+            // reload list with new popup displays
+            adapter.notifyDataSetChanged()
+            println("debug: payersMap updated")
+        })
 
         // when item on receipt list is clicked
         receiptListView.setOnItemClickListener { adapterView, view, i, l ->
@@ -90,11 +100,13 @@ class ReceiptActivity : AppCompatActivity() {
             checkedTextView.isChecked = !checkedTextView.isChecked
         }
 
+
         // accessing firebase
         mFirebaseAuth = FirebaseAuth.getInstance()
         mDatabase = FirebaseDatabase.getInstance().reference
         mFirebaseUser = mFirebaseAuth.currentUser!!
         mUserId = mFirebaseUser.uid
+
 
         // display button for user-selection popup menu
         selectPayerButton = findViewById<Button>(R.id.select_payer_button)

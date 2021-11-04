@@ -6,4 +6,9 @@ class JasonTestClass() {
         return "Hello world"
     }
 
+    fun Hello(){
+        //sdfasgadsfgdasfsdfadfasfdas
+        //asfasdfasdfsadfasdfasdfsfas
+    }
+
 }
