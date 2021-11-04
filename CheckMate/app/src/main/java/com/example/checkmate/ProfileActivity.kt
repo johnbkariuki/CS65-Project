@@ -9,11 +9,13 @@ import android.provider.MediaStore
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.theartofdev.edmodo.cropper.CropImage
 
@@ -26,6 +28,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var venmoText: TextView
     private lateinit var imageView: ImageView
     private lateinit var takePhotoButton: Button
+    private lateinit var cancelButton: Button
 
 
     // firebase and shared prefs
@@ -35,10 +38,12 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var mUserId: String
     private lateinit var pref: SharedPreferences
 
-
+    // params
     private var email=""
     private var password=""
-
+    private lateinit var imageUri: Uri
+    private lateinit var profileUpdates: UserProfileChangeRequest
+    private var SAVED_MESSAGE = "Changes Saved!"
 
     private val cropActivityResultContract = object: ActivityResultContract<Any, Uri?>(){
         override fun createIntent(context: Context, input: Any?): Intent {
@@ -54,6 +59,10 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var cropActivityResultLauncher: ActivityResultLauncher<Any?>
 
+    init {
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
@@ -63,7 +72,11 @@ class ProfileActivity : AppCompatActivity() {
         cropActivityResultLauncher = registerForActivityResult(cropActivityResultContract){
             it?.let{ uri ->
                 val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver,uri)
+                imageUri = uri
                 imageView.setImageBitmap(bitmap)
+                profileUpdates = UserProfileChangeRequest.Builder()
+                    .setPhotoUri(imageUri)
+                    .build()
             }
         }
 
@@ -110,6 +123,15 @@ class ProfileActivity : AppCompatActivity() {
             editor.putString(SignUpActivity.PASSWORD_KEY, password)
             editor.putBoolean(MainActivity.LOGGED_IN_KEY,true)
             editor.apply()
+            if(this::profileUpdates.isInitialized){
+                mCurrUser.updateProfile(profileUpdates)
+            }
+            Toast.makeText(this, SAVED_MESSAGE, Toast.LENGTH_SHORT).show()
+        }
+
+        cancelButton = findViewById(R.id.cancel_button_profile)
+        cancelButton.setOnClickListener {
+            finish()
         }
 
         // takePhotoButton
@@ -134,9 +156,14 @@ class ProfileActivity : AppCompatActivity() {
         mFirebaseFirestore.collection("users").document(mUserId).get()
             .addOnSuccessListener {
 
-                println("debug: $it") // debugging purposes
+                // println("debug: $it") // debugging purposes
                 usernameText.text = it.data!!["username"].toString()
                 venmoText.text = it.data!!["venmo"].toString()
             }
+
+        if(mCurrUser.photoUrl != null) {
+            val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, mCurrUser.photoUrl)
+            imageView.setImageBitmap(bitmap)
+        }
     }
 }
