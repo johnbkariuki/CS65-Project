@@ -32,6 +32,7 @@
     <string name="signin_error_message4">We couldn\'t match your profile in our database. Try a different password or username!</string>
     <string name="profile_fragment_logout">Logout</string>
     <string name="profile_fragment_save">SAVE</string>
+    <string name="search_hint">Enter username</string>
 
     <!-- profile activities -->
     <string name="change_photo_button">Change</string>

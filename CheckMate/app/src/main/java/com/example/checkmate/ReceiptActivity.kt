@@ -94,15 +94,46 @@ class ReceiptActivity : AppCompatActivity() {
         mFirebaseUser = mFirebaseAuth.currentUser!!
         mUserId = mFirebaseUser.uid
 
+<<<<<<< HEAD
         // display button for payer addition
         addPayerButton = findViewById<Button>(R.id.add_payer_button)
         addPayerButton.setOnClickListener {
             // launch activity
+=======
+        // Brandon: querying doesn't seem to work; datasnapshot always null
+//        val currUsernameRef = mDatabase.child("users").child(mUserId).child("user").child("username")
+//        currUsernameRef.addValueEventListener(object : ValueEventListener {
+//            override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                if (dataSnapshot.value != null) {
+//                    currPayer = dataSnapshot.value as String
+//                    println("debug: username = $currPayer")
+//                }
+//            }
+//            override fun onCancelled(databaseError: DatabaseError) {
+//                println("The read failed: " + databaseError.code)
+//            }
+//        })
+
+        // display button for user-selection popup menu
+        selectPayerButton = findViewById<Button>(R.id.select_payer_button)
+        var payerString = "$PAYER_STR $currPayer"
+        selectPayerButton.text = payerString
+        selectPayerButton.setOnClickListener {
+            //showPopupMenu(selectPayerButton)
+            val intent = Intent(this, SearchBarActivity::class.java)
+            startActivity(intent)
+>>>>>>> searchbar
         }
 
-        // launching camera
-        recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-        getReceipt()
+        // launching camera only if not coming back from a payer select activity
+        if (intent.getStringArrayListExtra("users") == null) {
+            recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+            getReceipt()
+        }
+        else {
+            println("debug: ${intent.getStringArrayListExtra("users")}")
+            Toast.makeText(this, intent.getStringArrayListExtra("users").toString(), Toast.LENGTH_LONG).show()
+        }
     }
 
     // taking photo
