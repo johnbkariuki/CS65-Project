@@ -15,9 +15,9 @@
         android:name="com.example.checkmate.ReceiptActivity"
         android:label="activity_receipt"
         tools:layout="@layout/activity_receipt" />
-    <fragment
-        android:id="@+id/profileFragment"
-        android:name="com.example.checkmate.ProfileFragment"
-        android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+    <activity
+        android:id="@+id/profileActivity"
+        android:name="com.example.checkmate.ProfileActivity"
+        android:label="activity_profile"
+        tools:layout="@layout/activity_profile" />
 </navigation>

@@ -8,7 +8,6 @@ import android.os.Bundle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
     private var loggedIn = false
@@ -28,8 +27,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(logInIntent)
         } else{
             // setting up bottom navigation menu
-            val bottomNavigationView = findViewById<BottomNavigationView
-                    >(R.id.bottom_navigation_view)
+            val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation_view)
             val navController = findNavController(R.id.nav_fragment)
             bottomNavigationView.setupWithNavController(
                 navController

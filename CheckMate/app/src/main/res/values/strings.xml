@@ -33,4 +33,7 @@
     <string name="profile_fragment_logout">Logout</string>
     <string name="profile_fragment_save">SAVE</string>
 
+    <!-- profile activities -->
+    <string name="change_photo_button">Change</string>
+
 </resources>

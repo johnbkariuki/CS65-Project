@@ -153,7 +153,6 @@ class ReceiptActivity : AppCompatActivity() {
 
             for (j in 0 until block.lines.size) {
                 var line = block.lines[j]
-
                 val debugLine = line.text
                 println("debug: $debugLine")
                 // if on receipt line item

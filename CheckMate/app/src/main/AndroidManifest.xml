@@ -20,6 +20,8 @@
             android:label="@string/title_activity_receipt"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.CheckMate.NoActionBar" />
+        <activity android:name=".ProfileActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
