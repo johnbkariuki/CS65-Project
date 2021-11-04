@@ -43,7 +43,7 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var receiptImage: InputImage
 
     // for UI
-    private lateinit var addPayerButton: Button
+    private lateinit var selectPayerButton: Button
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, Float>>()
     private lateinit var adapter: ReceiptListAdapter
@@ -57,6 +57,7 @@ class ReceiptActivity : AppCompatActivity() {
 
     companion object {
         const val RECEIPT_SUBMITTED_TOAST = "Receipt Submitted"
+        const val PAYER_STR = "Payer:"
     }
 
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
@@ -81,12 +82,13 @@ class ReceiptActivity : AppCompatActivity() {
         // creating checklist to format receipt
         adapter = ReceiptListAdapter(this, receiptList)
         receiptListView.adapter = adapter
-        // observe changes in popup button display
-        adapter.payersMap.observe(this, Observer {it ->
-            // reload list with new popup displays
-            adapter.notifyDataSetChanged()
-            println("debug: payersMap updated")
-        })
+
+        // when item on receipt list is clicked
+        receiptListView.setOnItemClickListener { adapterView, view, i, l ->
+            // check item
+            val checkedTextView = view as CheckedTextView
+            checkedTextView.isChecked = !checkedTextView.isChecked
+        }
 
         // accessing firebase
         mFirebaseAuth = FirebaseAuth.getInstance()
@@ -94,35 +96,13 @@ class ReceiptActivity : AppCompatActivity() {
         mFirebaseUser = mFirebaseAuth.currentUser!!
         mUserId = mFirebaseUser.uid
 
-<<<<<<< HEAD
-        // display button for payer addition
-        addPayerButton = findViewById<Button>(R.id.add_payer_button)
-        addPayerButton.setOnClickListener {
-            // launch activity
-=======
-        // Brandon: querying doesn't seem to work; datasnapshot always null
-//        val currUsernameRef = mDatabase.child("users").child(mUserId).child("user").child("username")
-//        currUsernameRef.addValueEventListener(object : ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                if (dataSnapshot.value != null) {
-//                    currPayer = dataSnapshot.value as String
-//                    println("debug: username = $currPayer")
-//                }
-//            }
-//            override fun onCancelled(databaseError: DatabaseError) {
-//                println("The read failed: " + databaseError.code)
-//            }
-//        })
-
         // display button for user-selection popup menu
         selectPayerButton = findViewById<Button>(R.id.select_payer_button)
         var payerString = "$PAYER_STR $currPayer"
         selectPayerButton.text = payerString
         selectPayerButton.setOnClickListener {
-            //showPopupMenu(selectPayerButton)
             val intent = Intent(this, SearchBarActivity::class.java)
             startActivity(intent)
->>>>>>> searchbar
         }
 
         // launching camera only if not coming back from a payer select activity
