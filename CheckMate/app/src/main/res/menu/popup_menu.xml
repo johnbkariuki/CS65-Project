@@ -2,8 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/popup_menu">
     <item
-        android:id="@+id/add_payer_button"
-        android:title="@string/popup_add"/>
+    android:title="Payer 1"/>
+    <item
+    android:title="Payer 2"/>
 </menu>
+
+<!--<item-->
+<!--android:id="@+id/add_payer_button"-->
+<!--android:title="@string/popup_add"/>-->
 
 

@@ -12,7 +12,7 @@
     <string name="submit_button">Submit</string>
     <string name="title_activity_receipt">PaymentActivity</string>
     <string name="receipt_header">Receipt</string>
-    <string name="popup_add">Add Payer</string>
+    <string name="add_payer_button">Add Payer</string>
 
     <!-- sign in/sign up activities -->
     <string name="sign_in">Sign In</string>
@@ -32,5 +32,8 @@
     <string name="signin_error_message4">We couldn\'t match your profile in our database. Try a different password or username!</string>
     <string name="profile_fragment_logout">Logout</string>
     <string name="profile_fragment_save">SAVE</string>
+
+    <!-- profile activities -->
+    <string name="change_photo_button">Change</string>
 
 </resources>

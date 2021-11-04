@@ -26,6 +26,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.theartofdev.edmodo.cropper.CropImage
 import java.io.File
 import android.widget.CheckedTextView
+import androidx.lifecycle.Observer
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -42,7 +43,7 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var receiptImage: InputImage
 
     // for UI
-    private lateinit var selectPayerButton: Button
+    private lateinit var addPayerButton: Button
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, Float>>()
     private lateinit var adapter: ReceiptListAdapter
@@ -56,7 +57,6 @@ class ReceiptActivity : AppCompatActivity() {
 
     companion object {
         const val RECEIPT_SUBMITTED_TOAST = "Receipt Submitted"
-        const val PAYER_STR = "Payer:"
     }
 
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
@@ -81,12 +81,12 @@ class ReceiptActivity : AppCompatActivity() {
         // creating checklist to format receipt
         adapter = ReceiptListAdapter(this, receiptList)
         receiptListView.adapter = adapter
-        // when item on receipt list is clicked
-        receiptListView.setOnItemClickListener { adapterView, view, i, l ->
-            // check item
-            val checkedTextView = view as CheckedTextView
-            checkedTextView.isChecked = !checkedTextView.isChecked
-        }
+        // observe changes in popup button display
+        adapter.payersMap.observe(this, Observer {it ->
+            // reload list with new popup displays
+            adapter.notifyDataSetChanged()
+            println("debug: payersMap updated")
+        })
 
         // accessing firebase
         mFirebaseAuth = FirebaseAuth.getInstance()
@@ -94,48 +94,15 @@ class ReceiptActivity : AppCompatActivity() {
         mFirebaseUser = mFirebaseAuth.currentUser!!
         mUserId = mFirebaseUser.uid
 
-        // Brandon: querying doesn't seem to work; datasnapshot always null
-//        val currUsernameRef = mDatabase.child("users").child(mUserId).child("user").child("username")
-//        currUsernameRef.addValueEventListener(object : ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                if (dataSnapshot.value != null) {
-//                    currPayer = dataSnapshot.value as String
-//                    println("debug: username = $currPayer")
-//                }
-//            }
-//            override fun onCancelled(databaseError: DatabaseError) {
-//                println("The read failed: " + databaseError.code)
-//            }
-//        })
-
-        // display button for user-selection popup menu
-        selectPayerButton = findViewById<Button>(R.id.select_payer_button)
-        var payerString = "$PAYER_STR $currPayer"
-        selectPayerButton.text = payerString
-        selectPayerButton.setOnClickListener {
-            showPopupMenu(selectPayerButton)
+        // display button for payer addition
+        addPayerButton = findViewById<Button>(R.id.add_payer_button)
+        addPayerButton.setOnClickListener {
+            // launch activity
         }
 
         // launching camera
         recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
         getReceipt()
-    }
-
-    // allows user to select current payer
-    fun showPopupMenu(view: View) {
-        PopupMenu(view.context, view).apply {
-            menuInflater.inflate(R.menu.popup_menu, menu)
-            val addPayerButton = menu.findItem(R.id.add_payer_button)
-
-            setOnMenuItemClickListener { item ->
-                Toast.makeText(view.context, "You Clicked : " + item.title, Toast.LENGTH_SHORT).show()
-                // if user clicks to add payer
-                if (item.itemId == addPayerButton.itemId) {
-                    println("debug: adding payer")
-                }
-                true
-            }
-        }.show()
     }
 
     // taking photo
@@ -173,6 +140,8 @@ class ReceiptActivity : AppCompatActivity() {
         }
     }
 
+    // Brandon: *** need to handle quantity for displayReceipt() *** //
+
     // displaying photo
     fun displayReceipt(text: Text){
 
@@ -181,12 +150,14 @@ class ReceiptActivity : AppCompatActivity() {
         for (i in 0 until blocks.size) {
             println("debug: --------")
             val block = blocks[i]
-            for (line in block.lines) {
+
+            for (j in 0 until block.lines.size) {
+                var line = block.lines[j]
                 val debugLine = line.text
                 println("debug: $debugLine")
                 // if on receipt line item
                 if (line.text[0] == '$' || isPrice(line.text)) {
-                    val item = blocks[i - 1].lines[0].text
+                    val item = blocks[i - 1].lines[j].text
                     val price = line.text.slice(IntRange(1, line.text.length - 1)).toFloat()
                     // display receipt line item
                     val receiptItem = Pair(item, price)
