@@ -44,7 +44,6 @@ class ReceiptActivity : AppCompatActivity() {
 
     // for UI
     private lateinit var addPayerButton: Button
-    private lateinit var selectPayerButton: Button
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, Float>>()
     private lateinit var adapter: ReceiptListAdapter
@@ -93,26 +92,15 @@ class ReceiptActivity : AppCompatActivity() {
             println("debug: payersMap updated")
         })
 
-        // when item on receipt list is clicked
-        receiptListView.setOnItemClickListener { adapterView, view, i, l ->
-            // check item
-            val checkedTextView = view as CheckedTextView
-            checkedTextView.isChecked = !checkedTextView.isChecked
-        }
-
-
         // accessing firebase
         mFirebaseAuth = FirebaseAuth.getInstance()
         mDatabase = FirebaseDatabase.getInstance().reference
         mFirebaseUser = mFirebaseAuth.currentUser!!
         mUserId = mFirebaseUser.uid
 
-
-        // display button for user-selection popup menu
-        selectPayerButton = findViewById<Button>(R.id.select_payer_button)
-        var payerString = "$PAYER_STR $currPayer"
-        selectPayerButton.text = payerString
-        selectPayerButton.setOnClickListener {
+        // display button for payer addition
+        addPayerButton = findViewById<Button>(R.id.add_payer_button)
+        addPayerButton.setOnClickListener {
             val intent = Intent(this, SearchBarActivity::class.java)
             startActivity(intent)
         }
