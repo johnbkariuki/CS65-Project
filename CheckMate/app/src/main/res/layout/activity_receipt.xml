@@ -13,11 +13,13 @@
         android:text="@string/add_payer_button"
         android:layout_gravity="end"/>
 
-    <TextView
+    <EditText
+        android:id="@+id/receipt_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
-        android:text="@string/receipt_header"
+        android:hint="@string/receipt_title_hint"
+        android:inputType="text"
         android:layout_gravity="center"
         android:textSize="20sp"/>
 

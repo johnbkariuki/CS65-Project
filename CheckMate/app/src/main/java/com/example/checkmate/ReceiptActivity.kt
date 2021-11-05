@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import java.lang.NumberFormatException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -35,7 +36,7 @@ class ReceiptActivity : AppCompatActivity() {
     // for UI
     private lateinit var addPayerButton: Button
     private lateinit var receiptListView: ListView
-    private var receiptList = ArrayList<Pair<String, Float>>()
+    private var receiptList = ArrayList<Pair<String, String>>()
     private lateinit var adapterEntry: ReceiptEntryListAdapter
 
     // for firebase
@@ -43,10 +44,12 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var mFirebaseUser: FirebaseUser
     private lateinit var mUserId: String
     private lateinit var mDatabase: DatabaseReference
+    private lateinit var mFirebaseFirestore: FirebaseFirestore
+    private lateinit var mCurrUser: FirebaseUser
 
     // for saving receipt
     private lateinit var receiptEntry: ReceiptEntry
-    private var title = ""
+    private var title = "No Title"
     private var date = ""
     private var payer = ""
     private var priceList = arrayListOf<String>()
@@ -95,6 +98,37 @@ class ReceiptActivity : AppCompatActivity() {
         mDatabase = FirebaseDatabase.getInstance().reference
         mFirebaseUser = mFirebaseAuth.currentUser!!
         mUserId = mFirebaseUser.uid
+
+        // load firebase and firestore
+        mFirebaseAuth = FirebaseAuth.getInstance()
+        mFirebaseFirestore = FirebaseFirestore.getInstance()
+
+        // get username of current user; automatically payer
+//        val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+//        payer = pref.getString(MainActivity.USERNAME_KEY, "").toString()
+
+
+        val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+        val email = pref.getString(SignUpActivity.EMAIL_KEY, "")!!
+        val password = pref.getString(SignUpActivity.PASSWORD_KEY, "")!!
+
+        // firebase and load the view
+        mFirebaseAuth = FirebaseAuth.getInstance()
+        mFirebaseFirestore = FirebaseFirestore.getInstance()
+        mFirebaseAuth.signInWithEmailAndPassword(email, password)
+
+        if (mFirebaseAuth.currentUser != null) {
+            mCurrUser = mFirebaseAuth.currentUser!!
+            mUserId = mCurrUser.uid
+        }
+
+        // get username
+        mFirebaseFirestore.collection("users").document(mUserId).get()
+            .addOnSuccessListener {
+                // if logged in
+                payer = it.data!!["username"].toString()
+
+            }
 
         // display button for payer addition
         addPayerButton = findViewById<Button>(R.id.add_payer_button)
@@ -154,6 +188,8 @@ class ReceiptActivity : AppCompatActivity() {
     // displaying photo
     fun displayReceipt(text: Text){
 
+
+
         val blocks = text.textBlocks
         // loop through text blocks
         for (i in 0 until blocks.size) {
@@ -167,13 +203,20 @@ class ReceiptActivity : AppCompatActivity() {
                 // if on receipt line item
                 if (line.text[0] == '$' || isPrice(line.text)) {
                     val item = blocks[i - 1].lines[j].text
-                    val price = line.text.slice(IntRange(1, line.text.length - 1)).toFloat()
+                    var price = line.text
+                    if (price[0] == '$') {
+                        price = price.slice(IntRange(1, line.text.length - 1))
+                    }
                     // display receipt line item
                     val receiptItem = Pair(item, price)
                     receiptList.add(receiptItem)
+                    // store to arrays for eventual database storage
+                    priceList.add(price)
+                    itemList.add(item)
 
                 }
             }
+            println("debug: priceList = $priceList")
         }
         adapterEntry.notifyDataSetChanged()
     }
@@ -190,12 +233,30 @@ class ReceiptActivity : AppCompatActivity() {
         // create entry object
         receiptEntry = ReceiptEntry()
 
+        // get user-inputted title
+        val titleEditText = findViewById<EditText>(R.id.receipt_title)
+        title = titleEditText.text.toString()
+
         // get current date
         val calendar = Calendar.getInstance()
         val month = MONTHS[calendar.get(Calendar.MONTH)]
         val day = calendar.get(Calendar.DAY_OF_MONTH)
         val year = calendar.get(Calendar.YEAR)
         date = "$month $day $year"
+
+        // getting payerList based on map stored in adapter
+        val payersMap = adapterEntry.payersMapStore
+        // create list where index = receipt row and value is payer username for that item
+        for (i in 0 until priceList.size) {
+            println("debug: index = i")
+            // if row has not been assigned payer: current user is payer
+            if (payersMap.containsKey(i)) {
+                payerList.add(payersMap[i]!!)
+            } else {
+                println("debug: key not found, $i")
+                payerList.add(payer)
+            }
+        }
 
         // setting entry column values
         receiptEntry.title = title
@@ -207,7 +268,6 @@ class ReceiptActivity : AppCompatActivity() {
 
         // insert into database
         receiptEntryViewModel.insert(receiptEntry)
-
     }
 
     // for when user submits receipt

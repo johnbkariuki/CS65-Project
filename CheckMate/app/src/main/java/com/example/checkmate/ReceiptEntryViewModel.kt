@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import java.lang.IllegalArgumentException
 import java.io.*
@@ -12,12 +13,22 @@ import java.io.*
 // for UI interaction with database repository
 class ReceiptEntryViewModel(private val receiptEntryDatabaseDao: ReceiptEntryDatabaseDao) : ViewModel() {
 
+    var receiptList = receiptEntryDatabaseDao.getAllReceiptEntries().asLiveData()
+
     // inserting entry
     fun insert(receiptEntry: ReceiptEntry) {
         CoroutineScope(Dispatchers.IO).launch{
             receiptEntryDatabaseDao.insertReceiptEntry(receiptEntry)
         }
     }
+
+//    fun getAllReceiptEntries() {
+//        CoroutineScope(Dispatchers.IO).launch{
+//            if (receiptList.value != null) {
+//                println("debug: length = ${receiptList.value!!.size}}")
+//            }
+//        }
+//    }
 
     // deleting specific entry
     fun delete(id: Long) {
@@ -41,15 +52,6 @@ class ReceiptEntryViewModel(private val receiptEntryDatabaseDao: ReceiptEntryDat
         oos.writeObject(list)
 
         return bos.toByteArray()
-    }
-    
-    // convert byte array from database storage back into array list of strings
-    public fun Byte2ArrayList(byteArray: ByteArray): ArrayList<String> {
-
-        val bis = ByteArrayInputStream(byteArray)
-        val ois = ObjectInputStream(bis)
-
-        return ois.readObject() as ArrayList<String>
     }
 
 }

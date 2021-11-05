@@ -23,4 +23,7 @@ interface ReceiptEntryDatabaseDao {
     @Query("DELETE FROM receipt_entry_table WHERE id = :key") //":" indicates that it is a Bind variable
     suspend fun deleteReceiptEntry(key: Long)
 
+//    @Query("SELECT * FROM receipt_entry_table WHERE payer_column = :username")
+//    fun getReceiptEntry(username: String): Flow<List<ReceiptEntry>>
+
 }

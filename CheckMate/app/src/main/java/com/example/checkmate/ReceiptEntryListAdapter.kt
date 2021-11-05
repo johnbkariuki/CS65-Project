@@ -8,13 +8,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 // for formatting items in the receipt list
-class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<String, Float>>) : BaseAdapter(){
+class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<String, String>>) : BaseAdapter(){
 
     private lateinit var selectPayerButton: Button
 
     // key = row position, value = payer username
-    private val payersMapStore = mutableMapOf<Int, String>()
-    private val _payersMap = MutableLiveData<MutableMap<Int, String>>()
+    val payersMapStore = mutableMapOf<Int, String>()
+    val _payersMap = MutableLiveData<MutableMap<Int, String>>()
     val payersMap: LiveData<MutableMap<Int, String>>
         get() {
             return _payersMap
