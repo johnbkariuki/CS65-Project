@@ -11,6 +11,8 @@ import androidx.lifecycle.MutableLiveData
 class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<String, String>>) : BaseAdapter(){
 
     private lateinit var selectPayerButton: Button
+    var displayMode = Globals.SHOW_POPUP
+    var payers = mutableSetOf<String>()
 
     // key = row position, value = payer username
     val payersMapStore = mutableMapOf<Int, String>()
@@ -60,18 +62,24 @@ class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<S
         val payerString = "$PAYER_STR $payer"
         selectPayerButton.text = payerString
 
-        // listener for popup
-        selectPayerButton.setOnClickListener {
-            showPopupMenu(selectPayerButton, position)
+        if (displayMode == Globals.SHOW_POPUP) {
+            // listener for popup
+            selectPayerButton.setOnClickListener {
+                showPopupMenu(selectPayerButton, position)
+            }
         }
+
         return view
     }
 
     // allows user to select current payer
     fun showPopupMenu(view: View, position: Int) {
         PopupMenu(view.context, view).apply {
-            menuInflater.inflate(R.menu.popup_menu, menu)
+            for (payer in payers) {
+                menu.add(payer)
+            }
 
+            menuInflater.inflate(R.menu.popup_menu, menu)
             setOnMenuItemClickListener { item ->
                 // update map with new payer
                 payersMapStore[position] = item.title.toString()

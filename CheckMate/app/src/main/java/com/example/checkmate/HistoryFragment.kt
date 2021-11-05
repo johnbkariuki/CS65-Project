@@ -1,11 +1,13 @@
 package com.example.checkmate
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ListView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -43,13 +45,13 @@ class HistoryFragment : Fragment() {
         val receiptEntryViewModel = ViewModelProvider(this, viewModelFactory).get(ReceiptEntryViewModel::class.java)
 
         val pref = requireActivity().getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
-        var loggedIn = pref.getBoolean(MainActivity.LOGGED_IN_KEY, false)
+        val loggedIn = pref.getBoolean(MainActivity.LOGGED_IN_KEY, false)
 //        loggedIn = false
 
         if (loggedIn) {
 
-            var email = pref.getString(SignUpActivity.EMAIL_KEY, "")!!
-            var password = pref.getString(SignUpActivity.PASSWORD_KEY, "")!!
+            val email = pref.getString(SignUpActivity.EMAIL_KEY, "")!!
+            val password = pref.getString(SignUpActivity.PASSWORD_KEY, "")!!
 
             // firebase and load the view
             mFirebaseAuth = FirebaseAuth.getInstance()
@@ -76,13 +78,25 @@ class HistoryFragment : Fragment() {
                     receiptEntryViewModel.receiptList.observe(requireActivity(), Observer { it ->
                         listAdapter.replace(it)
                         listAdapter.notifyDataSetChanged()
-                        // reload list with new popup displays
-                        println("debug: len(historyList) = ${it.size}")
-                        println("debug: username = $username")
                     })
+
+                    // check for if user clicks on item in history list
+                    historyListView.setOnItemClickListener() { parent: AdapterView<*>, view: View, position: Int, id: Long ->
+                        val receiptEntry = listAdapter.getItem(position) as ReceiptEntry
+                        println("debug: entry #$position selected")
+
+                        // pass needed parameters to ReceiptActivity intent
+                        val intent = Intent(parent.context, ReceiptActivity::class.java)
+                        intent.putExtra(Globals.RECEIPT_TITLE_KEY, receiptEntry.title)
+                        intent.putExtra(Globals.RECEIPT_PRICELIST_KEY, Globals.Byte2ArrayList(receiptEntry.priceList))
+                        intent.putExtra(Globals.RECEIPT_ITEMLIST_KEY, Globals.Byte2ArrayList(receiptEntry.itemList))
+                        intent.putExtra(Globals.RECEIPT_PAYERLIST_KEY, Globals.Byte2ArrayList(receiptEntry.payerList))
+
+                        intent.putExtra(Globals.RECEIPT_MODE_KEY, Globals.RECEIPT_HISTORY_MODE)
+                        parent.context?.startActivity(intent)
+                    }
                 }
         }
-
         return view
     }
 }

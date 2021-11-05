@@ -29,15 +29,19 @@ import kotlin.collections.ArrayList
 
 class ReceiptActivity : AppCompatActivity() {
 
+    private var receiptMode: String? = null
+
     // for receipt image processing
     private lateinit var recognizer: TextRecognizer
     private lateinit var receiptImage: InputImage
 
     // for UI
     private lateinit var addPayerButton: Button
+    private lateinit var submitButton: Button
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, String>>()
     private lateinit var adapterEntry: ReceiptEntryListAdapter
+    private var payers = mutableSetOf<String>()  // payers in popup
 
     // for firebase
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -54,7 +58,7 @@ class ReceiptActivity : AppCompatActivity() {
     private var payer = ""
     private var priceList = arrayListOf<String>()
     private var itemList = arrayListOf<String>()
-    private var payerList = arrayListOf<String>()
+    private var payerList = arrayListOf<String>()  // index = receipt item row, value = payer
 
     companion object {
         const val RECEIPT_SUBMITTED_TOAST = "Receipt Submitted"
@@ -86,65 +90,102 @@ class ReceiptActivity : AppCompatActivity() {
         adapterEntry = ReceiptEntryListAdapter(this, receiptList)
         receiptListView.adapter = adapterEntry
 
-        // observe changes in popup button display
-        adapterEntry.payersMap.observe(this, Observer { it ->
-            // reload list with new popup displays
-            adapterEntry.notifyDataSetChanged()
-            println("debug: payersMap updated")
-        })
-
-        // accessing firebase
-        mFirebaseAuth = FirebaseAuth.getInstance()
-        mDatabase = FirebaseDatabase.getInstance().reference
-        mFirebaseUser = mFirebaseAuth.currentUser!!
-        mUserId = mFirebaseUser.uid
-
-        // load firebase and firestore
-        mFirebaseAuth = FirebaseAuth.getInstance()
-        mFirebaseFirestore = FirebaseFirestore.getInstance()
-
-        // get username of current user; automatically payer
-//        val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
-//        payer = pref.getString(MainActivity.USERNAME_KEY, "").toString()
-
-
-        val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
-        val email = pref.getString(SignUpActivity.EMAIL_KEY, "")!!
-        val password = pref.getString(SignUpActivity.PASSWORD_KEY, "")!!
-
-        // firebase and load the view
-        mFirebaseAuth = FirebaseAuth.getInstance()
-        mFirebaseFirestore = FirebaseFirestore.getInstance()
-        mFirebaseAuth.signInWithEmailAndPassword(email, password)
-
-        if (mFirebaseAuth.currentUser != null) {
-            mCurrUser = mFirebaseAuth.currentUser!!
-            mUserId = mCurrUser.uid
+        receiptMode = intent.getStringExtra(Globals.RECEIPT_MODE_KEY)
+        if (receiptMode == null) {
+            receiptMode = Globals.RECEIPT_NEW_MODE
         }
 
-        // get username
-        mFirebaseFirestore.collection("users").document(mUserId).get()
-            .addOnSuccessListener {
-                // if logged in
-                payer = it.data!!["username"].toString()
+        if (receiptMode == Globals.RECEIPT_NEW_MODE) {
 
+            // observe changes in popup button display
+            adapterEntry.payersMap.observe(this, Observer { it ->
+                // reload list with new popup displays
+                adapterEntry.notifyDataSetChanged()
+                println("debug: payersMap updated")
+            })
+
+            val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+            val email = pref.getString(SignUpActivity.EMAIL_KEY, "")!!
+            val password = pref.getString(SignUpActivity.PASSWORD_KEY, "")!!
+
+            // firebase and load the view
+            mFirebaseAuth = FirebaseAuth.getInstance()
+            mFirebaseFirestore = FirebaseFirestore.getInstance()
+            mFirebaseAuth.signInWithEmailAndPassword(email, password)
+
+            if (mFirebaseAuth.currentUser != null) {
+                mCurrUser = mFirebaseAuth.currentUser!!
+                mUserId = mCurrUser.uid
             }
 
-        // display button for payer addition
-        addPayerButton = findViewById<Button>(R.id.add_payer_button)
-        addPayerButton.setOnClickListener {
-            val intent = Intent(this, SearchBarActivity::class.java)
-            startActivity(intent)
-        }
+            // get username
+            mFirebaseFirestore.collection("users").document(mUserId).get()
+                .addOnSuccessListener {
+                    // if logged in
+                    payer = it.data!!["username"].toString()
+                    payers.add(payer)
+                    adapterEntry.payers = payers
+                    adapterEntry.notifyDataSetChanged()
+                }
 
-        // launching camera only if not coming back from a payer select activity
-        if (intent.getStringArrayListExtra("users") == null) {
+            // display button for payer addition
+            addPayerButton = findViewById<Button>(R.id.add_payer_button)
+            addPayerButton.setOnClickListener {
+                val intent = Intent(this, SearchBarActivity::class.java)
+                startActivity(intent)
+            }
+
             recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             getReceipt()
+
+        } else if (receiptMode == Globals.RECEIPT_HISTORY_MODE) {
+
+            // hide popups
+            adapterEntry.displayMode = Globals.HIDE_POPUP
+
+            // hide buttons
+            addPayerButton = findViewById<Button>(R.id.add_payer_button)
+            submitButton = findViewById<Button>(R.id.submit_receipt_button)
+            addPayerButton.visibility = View.GONE
+            submitButton.visibility = View.GONE
+
+            // get receipt object fields
+            title = intent.getStringExtra(Globals.RECEIPT_TITLE_KEY)!!
+            priceList = intent.getStringArrayListExtra(Globals.RECEIPT_PRICELIST_KEY)!!
+            itemList = intent.getStringArrayListExtra(Globals.RECEIPT_ITEMLIST_KEY)!!
+            payerList = intent.getStringArrayListExtra(Globals.RECEIPT_PAYERLIST_KEY)!!
+            // creating payer map, adding prices and items to adapter
+            for (i in 0 until payerList.size) {
+                val payer = payerList[i]
+                val item = itemList[i]
+                val price = priceList[i]
+                adapterEntry.payersMapStore[i] = payer
+                receiptList.add(Pair(item, price))
+            }
+            // notify adapter
+            adapterEntry.notifyDataSetChanged()
+
+            // set title
+            val titleEditText = findViewById<EditText>(R.id.receipt_title)
+            titleEditText.setText(title)
         }
-        else {
-            println("debug: ${intent.getStringArrayListExtra("users")}")
-            Toast.makeText(this, intent.getStringArrayListExtra("users").toString(), Toast.LENGTH_LONG).show()
+    }
+
+    override fun onResume() {
+
+        super.onResume()
+        val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+        val selectedUsersSet = pref.getStringSet(Globals.SELECTED_USERS_KEY, null)
+        if (selectedUsersSet != null) {
+            println("debug: onResume() called, storing new users")
+            for (user in selectedUsersSet) {
+                payers.add(user)
+                adapterEntry.payers = payers
+                adapterEntry.notifyDataSetChanged()
+            }
+            val editor = pref.edit()
+            editor.remove(Globals.SELECTED_USERS_KEY)
+            editor.apply()
         }
     }
 
@@ -187,8 +228,6 @@ class ReceiptActivity : AppCompatActivity() {
 
     // displaying photo
     fun displayReceipt(text: Text){
-
-
 
         val blocks = text.textBlocks
         // loop through text blocks
@@ -262,9 +301,9 @@ class ReceiptActivity : AppCompatActivity() {
         receiptEntry.title = title
         receiptEntry.date = date
         receiptEntry.payer = payer
-        receiptEntry.priceList = receiptEntryViewModel.ArrayList2Byte(priceList)
-        receiptEntry.itemList = receiptEntryViewModel.ArrayList2Byte(itemList)
-        receiptEntry.payerList = receiptEntryViewModel.ArrayList2Byte(payerList)
+        receiptEntry.priceList = Globals.ArrayList2Byte(priceList)
+        receiptEntry.itemList = Globals.ArrayList2Byte(itemList)
+        receiptEntry.payerList = Globals.ArrayList2Byte(payerList)
 
         // insert into database
         receiptEntryViewModel.insert(receiptEntry)
@@ -272,12 +311,13 @@ class ReceiptActivity : AppCompatActivity() {
 
     // for when user submits receipt
     fun onSubmitReceipt(view: View) {
+        if (receiptMode == Globals.RECEIPT_NEW_MODE) {
+            // save receipt
+            saveReceiptEntry()
 
-        // save receipt
-        saveReceiptEntry()
-
-        // display toast and exit activity
-        Toast.makeText(this, RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
-        finish()
+            // display toast and exit activity
+            Toast.makeText(this, RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.checkmate
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -103,10 +104,20 @@ class SearchBarActivity : AppCompatActivity() {
     }
 
     fun onSelectFriendsCLicked(view: View) {
-        val intent = Intent(this, ReceiptActivity::class.java)
-        val bundle = Bundle()
-        bundle.putStringArrayList("users", selectedUsers)
-        intent.putExtras(bundle)
-        startActivity(intent)
+//        val intent = Intent(this, ReceiptActivity::class.java)
+//        val bundle = Bundle()
+//        bundle.putStringArrayList("users", selectedUsers)
+//        intent.putExtras(bundle)
+//        startActivity(intent)
+
+        // ** Brandon revision
+        val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+        val editor = pref.edit()
+
+        val selectedUsersSet: Set<String> = selectedUsers.toSet()
+        editor.putStringSet(Globals.SELECTED_USERS_KEY, selectedUsersSet)
+        editor.apply()
+
+        finish()
     }
 }

@@ -45,8 +45,8 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
 
         // calculate amount user paid
         var amountPaid = 0.0
-        val translatedPayerList = Byte2ArrayList(receipt.payerList)
-        val translatedPriceList = Byte2ArrayList(receipt.priceList)
+        val translatedPayerList = Globals.Byte2ArrayList(receipt.payerList)
+        val translatedPriceList = Globals.Byte2ArrayList(receipt.priceList)
         for (i in 0 until translatedPayerList.size) {
             val payer = translatedPayerList[i]
             val price = translatedPriceList[i].toFloat()
@@ -66,14 +66,5 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
 
     fun replace(newHistoryList: List<ReceiptEntry>){
         historyList = newHistoryList
-    }
-
-    // convert byte array from database storage back into array list of strings
-    fun Byte2ArrayList(byteArray: ByteArray): ArrayList<String> {
-
-        val bis = ByteArrayInputStream(byteArray)
-        val ois = ObjectInputStream(bis)
-
-        return ois.readObject() as ArrayList<String>
     }
 }

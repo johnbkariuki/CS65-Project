@@ -44,16 +44,6 @@ class ReceiptEntryViewModel(private val receiptEntryDatabaseDao: ReceiptEntryDat
         }
     }
 
-    // convert arraylist to byte array for database storage
-    public fun ArrayList2Byte(list: ArrayList<String>): ByteArray {
-
-        val bos = ByteArrayOutputStream()
-        val oos = ObjectOutputStream(bos)
-        oos.writeObject(list)
-
-        return bos.toByteArray()
-    }
-
 }
 
 class ReceiptEntryViewModelFactory (private val databaseDao: ReceiptEntryDatabaseDao) : ViewModelProvider.Factory {
