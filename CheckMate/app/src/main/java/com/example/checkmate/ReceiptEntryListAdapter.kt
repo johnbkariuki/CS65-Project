@@ -8,21 +8,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 // for formatting items in the receipt list
-class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String, Float>>) : BaseAdapter(){
+class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<String, String>>) : BaseAdapter(){
 
     private lateinit var selectPayerButton: Button
+    var displayMode = Globals.SHOW_POPUP
+    var payers = mutableSetOf<String>()
 
     // key = row position, value = payer username
-    private val payersMapStore = mutableMapOf<Int, String>()
-    private val _payersMap = MutableLiveData<MutableMap<Int, String>>()
+    val payersMapStore = mutableMapOf<Int, String>()
+    val _payersMap = MutableLiveData<MutableMap<Int, String>>()
     val payersMap: LiveData<MutableMap<Int, String>>
         get() {
             return _payersMap
         }
-
-    companion object {
-        const val PAYER_STR = "Payer:"
-    }
 
     override fun getItem(position: Int): Any {
         return receiptList[position]
@@ -30,7 +28,6 @@ class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
-
     }
 
     override fun getCount(): Int {
@@ -38,8 +35,6 @@ class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        println("debug: getView called")
-
         val view: View = View.inflate(context, R.layout.layout_receiptlist_adapter,null)
         val receiptLine = view.findViewById<TextView>(R.id.receipt_line)
 
@@ -57,21 +52,28 @@ class ReceiptListAdapter(val context: Context, var receiptList: List<Pair<String
         if (payersMapStore.containsKey(position)) {
             payer = payersMapStore[position].toString()
         }
-        val payerString = "$PAYER_STR $payer"
+        val payerString = "${Globals.PAYER_STR} $payer"
         selectPayerButton.text = payerString
 
-        // listener for popup
-        selectPayerButton.setOnClickListener {
-            showPopupMenu(selectPayerButton, position)
+        // if creatingn new receipt, show popup
+        if (displayMode == Globals.SHOW_POPUP) {
+            // listener for popup
+            selectPayerButton.setOnClickListener {
+                showPopupMenu(selectPayerButton, position)
+            }
         }
+
         return view
     }
 
     // allows user to select current payer
     fun showPopupMenu(view: View, position: Int) {
         PopupMenu(view.context, view).apply {
-            menuInflater.inflate(R.menu.popup_menu, menu)
+            for (payer in payers) {
+                menu.add(payer)
+            }
 
+            menuInflater.inflate(R.menu.popup_menu, menu)
             setOnMenuItemClickListener { item ->
                 // update map with new payer
                 payersMapStore[position] = item.title.toString()

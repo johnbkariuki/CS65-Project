@@ -11,8 +11,11 @@
     <!-- receipt activity  -->
     <string name="submit_button">Submit</string>
     <string name="title_activity_receipt">PaymentActivity</string>
-    <string name="receipt_header">Receipt</string>
+    <string name="receipt_title_hint">Your Title Here</string>
     <string name="add_payer_button">Add Payer</string>
+
+    <!--  history fragment  -->
+    <string name="history_header">Your Payment Activity</string>
 
     <!-- sign in/sign up activities -->
     <string name="sign_in">Sign In</string>

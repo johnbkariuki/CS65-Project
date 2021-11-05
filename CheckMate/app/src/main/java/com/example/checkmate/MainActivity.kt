@@ -8,6 +8,10 @@ import android.os.Bundle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
     private var loggedIn = false
@@ -15,17 +19,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pref: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
 
+    private lateinit var mFirebaseAuth: FirebaseAuth
+    private lateinit var mFirebaseUser: FirebaseUser
+    private lateinit var mUserId: String
+    private lateinit var mDatabase: DatabaseReference
+    private lateinit var mFirebaseFirestore: FirebaseFirestore
+    private lateinit var mCurrUser: FirebaseUser
+
+    private lateinit var username: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE)
-        loggedIn = pref.getBoolean(LOGGED_IN_KEY, false)
+        pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
+        loggedIn = pref.getBoolean(Globals.LOGGED_IN_KEY, false)
 
         if(!loggedIn){
             logInIntent = Intent(this, SignInSignUpActivity::class.java)
             startActivity(logInIntent)
-        } else{
+        } else {
             // setting up bottom navigation menu
             val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation_view)
             val navController = findNavController(R.id.nav_fragment)
@@ -66,9 +79,4 @@ class MainActivity : AppCompatActivity() {
         //startActivity(logInIntent)
     }
      */
-
-    companion object {
-        val LOGGED_IN_KEY = "logged_in_key"
-        val MY_PREFERENCES = "My_Preferences"
-    }
 }
