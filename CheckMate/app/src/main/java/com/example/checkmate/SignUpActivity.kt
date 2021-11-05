@@ -49,7 +49,7 @@ class SignUpActivity: AppCompatActivity() {
     }
 
     fun onSignUpSubmitClicked(view: View){
-        val pref: SharedPreferences = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+        val pref: SharedPreferences = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
         val editor: SharedPreferences.Editor = pref.edit()
 
         if (validateCredentials()) {
@@ -57,7 +57,7 @@ class SignUpActivity: AppCompatActivity() {
             // save email and password to log user back in later
             editor.putString(EMAIL_KEY, emailText.text.toString().trim())
             editor.putString(PASSWORD_KEY, passwordText.text.toString().trim())
-            editor.putBoolean(MainActivity.LOGGED_IN_KEY, true)
+            editor.putBoolean(Globals.LOGGED_IN_KEY, true)
 
             // apply changed and save to shared preferences
             editor.apply()

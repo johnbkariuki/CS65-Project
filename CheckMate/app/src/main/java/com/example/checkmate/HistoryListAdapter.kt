@@ -32,10 +32,9 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        println("debug: getView called")
-
         val view: View = View.inflate(context, R.layout.layout_historylist_adapter,null)
 
+        // get ReceiptEntry object
         val receipt = historyList[position]
 
         // get TextViews
@@ -50,16 +49,15 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         for (i in 0 until translatedPayerList.size) {
             val payer = translatedPayerList[i]
             val price = translatedPriceList[i].toFloat()
-            println("debug: price = $price")
             if (payer == username) {
                 amountPaid += price
             }
         }
 
+        // set textviews
         amountPaidText.text = "-$amountPaid"
         receiptTitleText.text = receipt.title
         receiptDateText.text = receipt.date
-        println("debug: title = ${receipt.title}")
 
         return view
     }

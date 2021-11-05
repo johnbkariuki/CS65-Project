@@ -19,15 +19,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class HistoryFragment : Fragment() {
 
+    // for displaying history list
     private var username = ""  // current user's username
     private var historyList = listOf<ReceiptEntry>()
     private lateinit var listAdapter: HistoryListAdapter
     private lateinit var historyListView: ListView
 
+    // for accessing firebase
     private lateinit var mFirebaseAuth: FirebaseAuth
-    private lateinit var mFirebaseUser: FirebaseUser
     private lateinit var mUserId: String
-    private lateinit var mDatabase: DatabaseReference
     private lateinit var mFirebaseFirestore: FirebaseFirestore
     private lateinit var mCurrUser: FirebaseUser
 
@@ -44,9 +44,9 @@ class HistoryFragment : Fragment() {
         val viewModelFactory = ReceiptEntryViewModelFactory(databaseDao)
         val receiptEntryViewModel = ViewModelProvider(this, viewModelFactory).get(ReceiptEntryViewModel::class.java)
 
-        val pref = requireActivity().getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
-        val loggedIn = pref.getBoolean(MainActivity.LOGGED_IN_KEY, false)
-//        loggedIn = false
+        // check if logged in
+        val pref = requireActivity().getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
+        val loggedIn = pref.getBoolean(Globals.LOGGED_IN_KEY, false)
 
         if (loggedIn) {
 
@@ -63,18 +63,18 @@ class HistoryFragment : Fragment() {
                 mUserId = mCurrUser.uid
             }
 
-            // get username
             mFirebaseFirestore.collection("users").document(mUserId).get()
                 .addOnSuccessListener {
-                    // if logged in
+                    // get username
                     username = it.data!!["username"].toString()
 
-                    // creating checklist to format receipt
+                    // attaching list adapter
                     listAdapter = HistoryListAdapter(requireActivity(), historyList)
                     listAdapter.username = username
                     historyListView = view.findViewById(R.id.historyList)
                     historyListView.adapter = listAdapter
 
+                    // create list
                     receiptEntryViewModel.receiptList.observe(requireActivity(), Observer { it ->
                         listAdapter.replace(it)
                         listAdapter.notifyDataSetChanged()
@@ -92,6 +92,7 @@ class HistoryFragment : Fragment() {
                         intent.putExtra(Globals.RECEIPT_ITEMLIST_KEY, Globals.Byte2ArrayList(receiptEntry.itemList))
                         intent.putExtra(Globals.RECEIPT_PAYERLIST_KEY, Globals.Byte2ArrayList(receiptEntry.payerList))
 
+                        // launch ReceiptActivity
                         intent.putExtra(Globals.RECEIPT_MODE_KEY, Globals.RECEIPT_HISTORY_MODE)
                         parent.context?.startActivity(intent)
                     }

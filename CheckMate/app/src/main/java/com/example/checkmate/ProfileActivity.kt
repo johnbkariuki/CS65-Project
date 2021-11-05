@@ -81,7 +81,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         // grab existing email and pswd
-        pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+        pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
         email = pref.getString(SignUpActivity.EMAIL_KEY, "")!!
         password = pref.getString(SignUpActivity.PASSWORD_KEY, "")!!
 
@@ -105,7 +105,7 @@ class ProfileActivity : AppCompatActivity() {
             val editor: SharedPreferences.Editor = pref.edit()
             editor.putString(SignUpActivity.EMAIL_KEY, "")
             editor.putString(SignUpActivity.PASSWORD_KEY, "")
-            editor.putBoolean(MainActivity.LOGGED_IN_KEY,false)
+            editor.putBoolean(Globals.LOGGED_IN_KEY,false)
             editor.apply()
 
             // logout
@@ -121,7 +121,7 @@ class ProfileActivity : AppCompatActivity() {
             val editor: SharedPreferences.Editor = pref.edit()
             editor.putString(SignUpActivity.EMAIL_KEY, email)
             editor.putString(SignUpActivity.PASSWORD_KEY, password)
-            editor.putBoolean(MainActivity.LOGGED_IN_KEY,true)
+            editor.putBoolean(Globals.LOGGED_IN_KEY,true)
             editor.apply()
             if(this::profileUpdates.isInitialized){
                 mCurrUser.updateProfile(profileUpdates)

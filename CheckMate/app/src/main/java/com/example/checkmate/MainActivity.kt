@@ -28,19 +28,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var username: String
 
-    companion object {
-        val LOGGED_IN_KEY = "logged_in_key"
-        val MY_PREFERENCES = "My_Preferences"
-        val USERNAME_KEY = "username key"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE)
-        loggedIn = pref.getBoolean(LOGGED_IN_KEY, false)
-//        loggedIn = false
+        pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
+        loggedIn = pref.getBoolean(Globals.LOGGED_IN_KEY, false)
 
         if(!loggedIn){
             logInIntent = Intent(this, SignInSignUpActivity::class.java)

@@ -18,13 +18,24 @@ class Globals {
         val RECEIPT_PRICELIST_KEY = "receipt pricelist key"
         val RECEIPT_ITEMLIST_KEY = "receipt itemlist key"
         val RECEIPT_PAYERLIST_KEY = "receipt payerlist key"
+        val PAYER_STR = "Payer:"
 
         // search bar
-        val SELECTED_USERS_KEY = "selected users key"
+        val ADDED_PAYERS_KEY = "add payers key"
 
         // receiptEntryListAdapter
         val HIDE_POPUP = "hide popup"
         val SHOW_POPUP = "show popup"
+
+        // profile, shared preferences
+        val LOGGED_IN_KEY = "logged_in_key"
+        val MY_PREFERENCES = "My_Preferences"
+
+        // toasts
+        const val RECEIPT_SUBMITTED_TOAST = "Receipt Submitted"
+
+        // random
+        val MONTHS = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sept", "Oct", "Nov", "Dec")
 
         // *** METHODS *** //
 

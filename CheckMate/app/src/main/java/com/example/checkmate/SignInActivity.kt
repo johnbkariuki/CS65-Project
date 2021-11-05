@@ -57,11 +57,11 @@ class SignInActivity : AppCompatActivity() {
                 mFirebaseAuth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
 
                     // shared prefs
-                    val pref: SharedPreferences = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+                    val pref: SharedPreferences = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
                     val editor: SharedPreferences.Editor = pref.edit()
                     editor.putString(SignUpActivity.EMAIL_KEY, email)
                     editor.putString(SignUpActivity.PASSWORD_KEY, password)
-                    editor.putBoolean(MainActivity.LOGGED_IN_KEY,true)
+                    editor.putBoolean(Globals.LOGGED_IN_KEY,true)
                     editor.apply()
 
                     mainActivityIntent = Intent(this,MainActivity::class.java)

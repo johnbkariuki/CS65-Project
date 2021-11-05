@@ -22,14 +22,6 @@ class ReceiptEntryViewModel(private val receiptEntryDatabaseDao: ReceiptEntryDat
         }
     }
 
-//    fun getAllReceiptEntries() {
-//        CoroutineScope(Dispatchers.IO).launch{
-//            if (receiptList.value != null) {
-//                println("debug: length = ${receiptList.value!!.size}}")
-//            }
-//        }
-//    }
-
     // deleting specific entry
     fun delete(id: Long) {
         CoroutineScope(Dispatchers.IO).launch {

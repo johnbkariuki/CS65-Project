@@ -111,11 +111,11 @@ class SearchBarActivity : AppCompatActivity() {
 //        startActivity(intent)
 
         // ** Brandon revision
-        val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+        val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
         val editor = pref.edit()
 
         val selectedUsersSet: Set<String> = selectedUsers.toSet()
-        editor.putStringSet(Globals.SELECTED_USERS_KEY, selectedUsersSet)
+        editor.putStringSet(Globals.ADDED_PAYERS_KEY, selectedUsersSet)
         editor.apply()
 
         finish()

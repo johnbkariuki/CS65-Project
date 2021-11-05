@@ -60,11 +60,6 @@ class ReceiptActivity : AppCompatActivity() {
     private var itemList = arrayListOf<String>()
     private var payerList = arrayListOf<String>()  // index = receipt item row, value = payer
 
-    companion object {
-        const val RECEIPT_SUBMITTED_TOAST = "Receipt Submitted"
-        val MONTHS = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sept", "Oct", "Nov", "Dec")
-    }
-
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
         override fun createIntent(context: Context, input: Any?): Intent {
             return CropImage.activity()
@@ -86,7 +81,7 @@ class ReceiptActivity : AppCompatActivity() {
         setContentView(R.layout.activity_receipt)
         receiptListView = findViewById<ListView>(R.id.receiptList)
 
-        // creating checklist to format receipt
+        // attach adapter
         adapterEntry = ReceiptEntryListAdapter(this, receiptList)
         receiptListView.adapter = adapterEntry
 
@@ -95,16 +90,17 @@ class ReceiptActivity : AppCompatActivity() {
             receiptMode = Globals.RECEIPT_NEW_MODE
         }
 
+        // if creating new receipt
         if (receiptMode == Globals.RECEIPT_NEW_MODE) {
 
-            // observe changes in popup button display
+            // observe changes in popup button displays
             adapterEntry.payersMap.observe(this, Observer { it ->
                 // reload list with new popup displays
                 adapterEntry.notifyDataSetChanged()
                 println("debug: payersMap updated")
             })
 
-            val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
+            val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
             val email = pref.getString(SignUpActivity.EMAIL_KEY, "")!!
             val password = pref.getString(SignUpActivity.PASSWORD_KEY, "")!!
 
@@ -118,10 +114,9 @@ class ReceiptActivity : AppCompatActivity() {
                 mUserId = mCurrUser.uid
             }
 
-            // get username
             mFirebaseFirestore.collection("users").document(mUserId).get()
                 .addOnSuccessListener {
-                    // if logged in
+                    // get username - add to popup buttons
                     payer = it.data!!["username"].toString()
                     payers.add(payer)
                     adapterEntry.payers = payers
@@ -135,9 +130,11 @@ class ReceiptActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
+            // launch camera/receipt scanner
             recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             getReceipt()
 
+            // if displaying past receipt from history
         } else if (receiptMode == Globals.RECEIPT_HISTORY_MODE) {
 
             // hide popups
@@ -174,17 +171,18 @@ class ReceiptActivity : AppCompatActivity() {
     override fun onResume() {
 
         super.onResume()
-        val pref = getSharedPreferences(MainActivity.MY_PREFERENCES, Context.MODE_PRIVATE)
-        val selectedUsersSet = pref.getStringSet(Globals.SELECTED_USERS_KEY, null)
-        if (selectedUsersSet != null) {
-            println("debug: onResume() called, storing new users")
-            for (user in selectedUsersSet) {
+        val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
+        val addedPayersSet = pref.getStringSet(Globals.ADDED_PAYERS_KEY, null)
+        // if resuming after user added new payers, add to set of payers for popups
+        if (addedPayersSet != null) {
+            for (user in addedPayersSet) {
                 payers.add(user)
                 adapterEntry.payers = payers
                 adapterEntry.notifyDataSetChanged()
             }
+            // reset
             val editor = pref.edit()
-            editor.remove(Globals.SELECTED_USERS_KEY)
+            editor.remove(Globals.ADDED_PAYERS_KEY)
             editor.apply()
         }
     }
@@ -216,11 +214,15 @@ class ReceiptActivity : AppCompatActivity() {
 
     // helper function for parsing receipt
     fun isPrice(string: String): Boolean {
-        return try {
-            val float = string.toFloat()
+        return if (string[0] == '$') {
             true
-        } catch (e: NumberFormatException) {
-            false
+        } else {
+            try {
+                val float = string.toFloat()
+                true
+            } catch (e: NumberFormatException) {
+                false
+            }
         }
     }
 
@@ -234,15 +236,15 @@ class ReceiptActivity : AppCompatActivity() {
         for (i in 0 until blocks.size) {
             println("debug: --------")
             val block = blocks[i]
-
             for (j in 0 until block.lines.size) {
                 var line = block.lines[j]
                 val debugLine = line.text
                 println("debug: $debugLine")
                 // if on receipt line item
-                if (line.text[0] == '$' || isPrice(line.text)) {
+                if (isPrice(line.text)) {
                     val item = blocks[i - 1].lines[j].text
                     var price = line.text
+                    // remove dollar sign if needed
                     if (price[0] == '$') {
                         price = price.slice(IntRange(1, line.text.length - 1))
                     }
@@ -255,7 +257,6 @@ class ReceiptActivity : AppCompatActivity() {
 
                 }
             }
-            println("debug: priceList = $priceList")
         }
         adapterEntry.notifyDataSetChanged()
     }
@@ -278,7 +279,7 @@ class ReceiptActivity : AppCompatActivity() {
 
         // get current date
         val calendar = Calendar.getInstance()
-        val month = MONTHS[calendar.get(Calendar.MONTH)]
+        val month = Globals.MONTHS[calendar.get(Calendar.MONTH)]
         val day = calendar.get(Calendar.DAY_OF_MONTH)
         val year = calendar.get(Calendar.YEAR)
         date = "$month $day $year"
@@ -287,12 +288,10 @@ class ReceiptActivity : AppCompatActivity() {
         val payersMap = adapterEntry.payersMapStore
         // create list where index = receipt row and value is payer username for that item
         for (i in 0 until priceList.size) {
-            println("debug: index = i")
             // if row has not been assigned payer: current user is payer
             if (payersMap.containsKey(i)) {
                 payerList.add(payersMap[i]!!)
             } else {
-                println("debug: key not found, $i")
                 payerList.add(payer)
             }
         }
@@ -316,7 +315,7 @@ class ReceiptActivity : AppCompatActivity() {
             saveReceiptEntry()
 
             // display toast and exit activity
-            Toast.makeText(this, RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, Globals.RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
             finish()
         }
     }

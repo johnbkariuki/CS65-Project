@@ -22,17 +22,12 @@ class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<S
             return _payersMap
         }
 
-    companion object {
-        const val PAYER_STR = "Payer:"
-    }
-
     override fun getItem(position: Int): Any {
         return receiptList[position]
     }
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
-
     }
 
     override fun getCount(): Int {
@@ -40,8 +35,6 @@ class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<S
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        println("debug: getView called")
-
         val view: View = View.inflate(context, R.layout.layout_receiptlist_adapter,null)
         val receiptLine = view.findViewById<TextView>(R.id.receipt_line)
 
@@ -59,9 +52,10 @@ class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<S
         if (payersMapStore.containsKey(position)) {
             payer = payersMapStore[position].toString()
         }
-        val payerString = "$PAYER_STR $payer"
+        val payerString = "${Globals.PAYER_STR} $payer"
         selectPayerButton.text = payerString
 
+        // if creatingn new receipt, show popup
         if (displayMode == Globals.SHOW_POPUP) {
             // listener for popup
             selectPayerButton.setOnClickListener {
