@@ -15,7 +15,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class SearchBarActivity : AppCompatActivity() {
+class  SearchBarActivity : AppCompatActivity() {
 
     // listview
     private lateinit var adapter: ArrayAdapter<String>

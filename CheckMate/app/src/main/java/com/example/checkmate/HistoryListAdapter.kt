@@ -48,10 +48,10 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         val translatedPriceList = Globals.Byte2ArrayList(receipt.priceList)
         for (i in 0 until translatedPayerList.size) {
             val payer = translatedPayerList[i]
-            val price = translatedPriceList[i].toFloat()
-            if (payer == username) {
-                amountPaid += price
-            }
+//            val price = translatedPriceList[i].toFloat()
+//            if (payer == username) {
+//                amountPaid += price
+//            }
         }
 
         // set textviews
