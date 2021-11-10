@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -23,6 +24,7 @@ class UpdateProfileActivity:AppCompatActivity() {
     private var email = ""
     private var password = ""
     private var SAVED_UPDATE_MESSAGE = "Profile Updated!"
+
 
     private lateinit var databaseReference: DatabaseReference
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -64,11 +66,42 @@ class UpdateProfileActivity:AppCompatActivity() {
 
         // saveButton
         saveBtn.setOnClickListener {
+            update_info()
+        }
+        cancelBtn.setOnClickListener {
+            finish()
+        }
+    }
+
+
+    private fun update_info(){
+
+        if(emailText.text.isNotEmpty() && usernameText.text.isNotEmpty() && venmoText.text.isNotEmpty() && passwordText.text.isNotEmpty()) {
+
+            databaseReference.child(mUserId).child("user").child("email")
+                .setValue(emailText.text.toString())
+            databaseReference.child(mUserId).child("user").child("username")
+                .setValue(usernameText.text.toString())
+            databaseReference.child(mUserId).child("user").child("venmo")
+                .setValue(venmoText.text.toString())
+            databaseReference.child(mUserId).child("user").child("password")
+                .setValue(passwordText.text.toString())
+
+            mFirebaseFirestore.collection("users").document(mUserId).update(
+                mapOf(
+                    "email" to emailText.text.toString(),
+                    "password" to passwordText.text.toString(),
+                    "username" to usernameText.text.toString(),
+                    "venmo" to venmoText.text.toString(),
+                    "keywords" to generateKeywords(usernameText.text.toString())
+                )
+            )
+
+            mCurrUser.updateEmail(emailText.text.toString())
+            mCurrUser.updatePassword(passwordText.text.toString())
 
             //update email just incase it was changed
             email = emailText.text.toString()
-
-            update_info()
 
             val editor: SharedPreferences.Editor = pref.edit()
             editor.putString(SignUpActivity.EMAIL_KEY, email)
@@ -77,31 +110,16 @@ class UpdateProfileActivity:AppCompatActivity() {
             editor.apply()
 
             Toast.makeText(this, SAVED_UPDATE_MESSAGE, Toast.LENGTH_LONG).show()
+
+        } else {
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage(R.string.signup_error_message)
+            builder.setTitle(R.string.signup_error_title)
+            builder.setPositiveButton(android.R.string.ok, null)
+
+            val dialog = builder.create()
+            dialog.show()
         }
-
-        cancelBtn.setOnClickListener {
-            finish()
-        }
-    }
-
-
-    private fun update_info(){
-        databaseReference.child(mUserId).child("user").child("email").setValue(emailText.text.toString())
-        databaseReference.child(mUserId).child("user").child("username").setValue(usernameText.text.toString())
-        databaseReference.child(mUserId).child("user").child("venmo").setValue(venmoText.text.toString())
-        databaseReference.child(mUserId).child("user").child("password").setValue(passwordText.text.toString())
-
-        mFirebaseFirestore.collection("users").document(mUserId).update(
-            mapOf(
-                "email" to emailText.text.toString(),
-                "password" to passwordText.text.toString(),
-                "username" to usernameText.text.toString(),
-                "venmo" to venmoText.text.toString(),
-                "keywords" to generateKeywords(usernameText.text.toString())
-            ))
-
-        mCurrUser.updateEmail(emailText.text.toString())
-        mCurrUser.updatePassword(passwordText.text.toString())
     }
 
     private fun loadView() {
