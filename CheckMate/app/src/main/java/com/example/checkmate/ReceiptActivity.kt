@@ -58,6 +58,7 @@ class ReceiptActivity : AppCompatActivity() {
     private var payer = ""
     private var priceList = arrayListOf<String>()
     private var itemList = arrayListOf<String>()
+    private var quantityList = arrayListOf<Float>()
     private var payerList = arrayListOf<String>()  // index = receipt item row, value = payer
 
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
@@ -226,13 +227,32 @@ class ReceiptActivity : AppCompatActivity() {
         }
     }
 
-    // Brandon: *** need to handle quantity for displayReceipt() *** //
+    // what does text represent
+    fun getTextType(text: String): String {
+        // if has dollar sign, price
+        if (text[0] == '$') {
+            return Globals.PRICE_TYPE
+        } else {
+            return try {
+                val textFloat = text.toFloat()
+                // if has decimal, price
+                if (text.contains('.')) {
+                    Globals.PRICE_TYPE
+                } else {  // otherwise, quantity
+                    Globals.QUANTITY_TYPE
+                }
+                // if is not number, it's an item
+            } catch (e: NumberFormatException) {
+                Globals.ITEM_TYPE
+            }
+        }
+    }
 
-    // displaying photo
+    // displaying receipt
     fun displayReceipt(text: Text){
 
         val blocks = text.textBlocks
-        // loop through text blocks
+        // loop through text blocks and fill out corresponding lists
         for (i in 0 until blocks.size) {
             println("debug: --------")
             val block = blocks[i]
@@ -240,24 +260,40 @@ class ReceiptActivity : AppCompatActivity() {
                 var line = block.lines[j]
                 val debugLine = line.text
                 println("debug: $debugLine")
-                // if on receipt line item
-                if (isPrice(line.text)) {
-                    val item = blocks[i - 1].lines[j].text
-                    var price = line.text
+                val textType = getTextType(line.text)
+                // add text to pertinent list 
+                if (textType == Globals.PRICE_TYPE) {
                     // remove dollar sign if needed
-                    if (price[0] == '$') {
-                        price = price.slice(IntRange(1, line.text.length - 1))
+                    if (line.text[0] == '$') {
+                        priceList.add(line.text.slice(IntRange(1, line.text.length - 1)))
+                    } else {
+                        priceList.add(line.text)
                     }
-                    // display receipt line item
-                    val receiptItem = Pair(item, price)
-                    receiptList.add(receiptItem)
-                    // store to arrays for eventual database storage
-                    priceList.add(price)
-                    itemList.add(item)
-
+                } else if (textType == Globals.ITEM_TYPE) {
+                    itemList.add(line.text)
+                } else if (textType == Globals.QUANTITY_TYPE) {
+                    quantityList.add(line.text.toFloat())
                 }
             }
         }
+        var newPriceList = arrayListOf<String>()
+        var newItemList = arrayListOf<String>()
+        for (i in 0 until priceList.size) {
+            val price = priceList[i]
+            val item = itemList[i]
+            var quantity = 1.0F
+            if (i < quantityList.size) {
+                quantity = quantityList[i]
+            }
+            for (j in 0 until quantity.toInt()) {
+                val dividedPrice = price.toFloat().div(quantity).toString()
+                newPriceList.add(dividedPrice)
+                newItemList.add(item)
+                receiptList.add(Pair(item, dividedPrice))
+            }
+        }
+        priceList = newPriceList
+        itemList = newItemList
         adapterEntry.notifyDataSetChanged()
     }
 

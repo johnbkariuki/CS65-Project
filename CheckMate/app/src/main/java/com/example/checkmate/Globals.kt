@@ -19,6 +19,9 @@ class Globals {
         val RECEIPT_ITEMLIST_KEY = "receipt itemlist key"
         val RECEIPT_PAYERLIST_KEY = "receipt payerlist key"
         val PAYER_STR = "Payer:"
+        val PRICE_TYPE = "price type"  // for when processing text
+        val QUANTITY_TYPE = "quantity type"
+        val ITEM_TYPE = "item type "
 
         // search bar
         val ADDED_PAYERS_KEY = "add payers key"
