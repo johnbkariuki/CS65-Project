@@ -9,6 +9,7 @@ import android.view.*
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -58,7 +59,7 @@ class ReceiptActivity : AppCompatActivity() {
     private var payer = ""
     private var priceList = arrayListOf<String>()
     private var itemList = arrayListOf<String>()
-    private var quantityList = arrayListOf<Float>()
+    private var quantityList = arrayListOf<String>()
     private var payerList = arrayListOf<String>()  // index = receipt item row, value = payer
 
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
@@ -152,6 +153,7 @@ class ReceiptActivity : AppCompatActivity() {
             priceList = intent.getStringArrayListExtra(Globals.RECEIPT_PRICELIST_KEY)!!
             itemList = intent.getStringArrayListExtra(Globals.RECEIPT_ITEMLIST_KEY)!!
             payerList = intent.getStringArrayListExtra(Globals.RECEIPT_PAYERLIST_KEY)!!
+
             // creating payer map, adding prices and items to adapter
             for (i in 0 until payerList.size) {
                 val payer = payerList[i]
@@ -170,7 +172,6 @@ class ReceiptActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-
         super.onResume()
         val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
         val addedPayersSet = pref.getStringSet(Globals.ADDED_PAYERS_KEY, null)
@@ -213,19 +214,6 @@ class ReceiptActivity : AppCompatActivity() {
         }
     }
 
-    // helper function for parsing receipt
-    fun isPrice(string: String): Boolean {
-        return if (string[0] == '$') {
-            true
-        } else {
-            try {
-                val float = string.toFloat()
-                true
-            } catch (e: NumberFormatException) {
-                false
-            }
-        }
-    }
 
     // what does text represent
     fun getTextType(text: String): String {
@@ -252,17 +240,22 @@ class ReceiptActivity : AppCompatActivity() {
     fun displayReceipt(text: Text){
 
         val blocks = text.textBlocks
+
         // loop through text blocks and fill out corresponding lists
         for (i in 0 until blocks.size) {
             println("debug: --------")
             val block = blocks[i]
+
             for (j in 0 until block.lines.size) {
+
                 var line = block.lines[j]
                 val debugLine = line.text
                 println("debug: $debugLine")
                 val textType = getTextType(line.text)
+
                 // add text to pertinent list 
                 if (textType == Globals.PRICE_TYPE) {
+
                     // remove dollar sign if needed
                     if (line.text[0] == '$') {
                         priceList.add(line.text.slice(IntRange(1, line.text.length - 1)))
@@ -272,29 +265,38 @@ class ReceiptActivity : AppCompatActivity() {
                 } else if (textType == Globals.ITEM_TYPE) {
                     itemList.add(line.text)
                 } else if (textType == Globals.QUANTITY_TYPE) {
-                    quantityList.add(line.text.toFloat())
+                    quantityList.add(line.text)
                 }
             }
         }
-        var newPriceList = arrayListOf<String>()
-        var newItemList = arrayListOf<String>()
-        for (i in 0 until priceList.size) {
-            val price = priceList[i]
-            val item = itemList[i]
-            var quantity = 1.0F
-            if (i < quantityList.size) {
-                quantity = quantityList[i]
+        println("debug:$priceList")
+        println("debug:$itemList")
+        println("debug:$quantityList")
+
+        if (priceList.size == itemList.size){
+            if (priceList.size == quantityList.size){
+                for (i in 0 until priceList.size) {
+                    val price = priceList[i]
+                    val quantityAndItem = quantityList[i] +" "+ itemList[i]
+                    receiptList.add(Pair(quantityAndItem, price))
+                }
+            } else{
+                for (i in 0 until priceList.size) {
+                    val price = priceList[i]
+                    val item = itemList[i]
+                    receiptList.add(Pair(item, price))
+                    println("Debug:$receiptList")
+                }
             }
-            for (j in 0 until quantity.toInt()) {
-                val dividedPrice = price.toFloat().div(quantity).toString()
-                newPriceList.add(dividedPrice)
-                newItemList.add(item)
-                receiptList.add(Pair(item, dividedPrice))
-            }
+            adapterEntry.notifyDataSetChanged()
+        } else{
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage(R.string.receipt_scanning_error)
+            builder.setTitle(R.string.signup_error_title)
+            builder.setPositiveButton(android.R.string.ok){ _, _ -> getReceipt()}
+            val dialog = builder.create()
+            dialog.show()
         }
-        priceList = newPriceList
-        itemList = newItemList
-        adapterEntry.notifyDataSetChanged()
     }
 
     // saves receipt entry to database
@@ -322,6 +324,7 @@ class ReceiptActivity : AppCompatActivity() {
 
         // getting payerList based on map stored in adapter
         val payersMap = adapterEntry.payersMapStore
+
         // create list where index = receipt row and value is payer username for that item
         for (i in 0 until priceList.size) {
             // if row has not been assigned payer: current user is payer

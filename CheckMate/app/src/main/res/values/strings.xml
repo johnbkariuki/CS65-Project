@@ -15,7 +15,7 @@
     <string name="add_payer_button">Add Payer</string>
 
     <!--  history fragment  -->
-    <string name="history_header">Your Payment Activity</string>
+    <string name="history_header">Your Payment History</string>
 
     <!-- sign in/sign up activities -->
     <string name="sign_in">Sign In</string>
@@ -34,6 +34,7 @@
     <string name="signin_error_message3">Please input a valid username or password.</string>
     <string name="signin_error_message4">We couldn\'t match your profile in our database. Try a different password or username!</string>
     <string name="used_email_error_message">That email is already in use. Please try using another one</string>
+    <string name="receipt_scanning_error">There was an issue scanning your receipt please try again</string>
     <string name="profile_fragment_logout">Logout</string>
     <string name="profile_fragment_save">SAVE</string>
     <string name="search_hint">Enter username</string>

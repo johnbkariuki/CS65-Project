@@ -1,40 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ReceiptActivity">
+    tools:context=".ReceiptActivity"
+    >
+        <Button
+            android:id="@+id/add_payer_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_payer_button"
+            android:layout_gravity="end"/>
 
-    <Button
-        android:id="@+id/add_payer_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/add_payer_button"
-        android:layout_gravity="end"/>
+        <EditText
+            android:id="@+id/receipt_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/text_margin"
+            android:hint="@string/receipt_title_hint"
+            android:inputType="text"
+            android:layout_gravity="center"
+            android:textSize="20sp"/>
 
-    <EditText
-        android:id="@+id/receipt_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:hint="@string/receipt_title_hint"
-        android:inputType="text"
-        android:layout_gravity="center"
-        android:textSize="20sp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.9"
+            android:orientation="vertical">
 
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/receiptList" />
+                <ListView
+                    android:id="@+id/receiptList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-    <Button
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/submit_button"
-        android:id="@+id/submit_receipt_button"
-        android:onClick="onSubmitReceipt"/>
+        </LinearLayout>
+        
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_weight="0.1"-->
+<!--            android:orientation="vertical">-->
+
+                <Button
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_margin="@dimen/text_margin"
+                    android:text="@string/submit_button"
+                    android:id="@+id/submit_receipt_button"
+                    android:onClick="onSubmitReceipt"/>
+
+<!--        </LinearLayout>-->
 
 </LinearLayout>
