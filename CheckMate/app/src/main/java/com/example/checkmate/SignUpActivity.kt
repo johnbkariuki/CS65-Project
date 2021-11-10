@@ -32,6 +32,8 @@ class SignUpActivity: AppCompatActivity() {
     private lateinit var mDatabase: DatabaseReference
     private lateinit var mFirebaseFirestore: FirebaseFirestore
 
+    private var valid_sign_up = true
+
     private val TOAST_TEXT = "Success! Profile Created!"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,31 +51,11 @@ class SignUpActivity: AppCompatActivity() {
     }
 
     fun onSignUpSubmitClicked(view: View){
-        val pref: SharedPreferences = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
-        val editor: SharedPreferences.Editor = pref.edit()
-
-        if (validateCredentials()) {
-
-            // save email and password to log user back in later
-            editor.putString(EMAIL_KEY, emailText.text.toString().trim())
-            editor.putString(PASSWORD_KEY, passwordText.text.toString().trim())
-            editor.putBoolean(Globals.LOGGED_IN_KEY, true)
-
-            // apply changed and save to shared preferences
-            editor.apply()
-
-            // launch main activity
-            mainActivityIntent = Intent(this, MainActivity::class.java)
-            startActivity(mainActivityIntent)
-
-            // make a toast
-            val toast = Toast.makeText(this, TOAST_TEXT, Toast.LENGTH_LONG)
-            toast.show()
-        }
+        validateCredentials()
     }
 
     // helper function to check if all inputs have been correctly defined
-    private fun validateCredentials(): Boolean {
+    private fun validateCredentials(){
         // check username
         val username = usernameText.text.toString().trim()
         // check email
@@ -83,8 +65,7 @@ class SignUpActivity: AppCompatActivity() {
         // check venmo
         val venmo = venmoText.text.toString().trim()
 
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() ||
-                venmo.isEmpty()) {
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || venmo.isEmpty()) {
             val builder = AlertDialog.Builder(this)
             builder.setMessage(R.string.signup_error_message)
             builder.setTitle(R.string.signup_error_title)
@@ -92,7 +73,6 @@ class SignUpActivity: AppCompatActivity() {
 
             val dialog = builder.create()
             dialog.show()
-            return false
         }
         else if (password.length < 6) {
             val builder = AlertDialog.Builder(this)
@@ -102,19 +82,21 @@ class SignUpActivity: AppCompatActivity() {
 
             val dialog = builder.create()
             dialog.show()
-            return false
         }
         else {
             // create the user and add to the database
             mFirebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                if (task.isComplete) {
+                if (task.isSuccessful) {
+
                     mFirebaseAuth.signInWithEmailAndPassword(email, password)
+
                     if (mFirebaseAuth.currentUser != null) {
                         mFirebaseUser = mFirebaseAuth.currentUser!!
                         mUserId = mFirebaseUser.uid
 
                         // input into database
-                        val user = User(username, email, password, venmo, generateKeywords(username))
+                        val user =
+                            User(username, email, password, venmo, generateKeywords(username))
                         mDatabase.child("users").child(mUserId).child("user").child("username")
                             .push().setValue(user.username)
                         mDatabase.child("users").child(mUserId).child("user").child("email")
@@ -130,16 +112,43 @@ class SignUpActivity: AppCompatActivity() {
                             .setValue(user.keywords)
 
                         // input into firestore
-                        mFirebaseFirestore.collection("users").document(mUserId).set(user).addOnCompleteListener {
-                            println("debug: @$mUserId successfully added to Firestore ($mFirebaseFirestore)")
-                        }.addOnFailureListener {
+                        mFirebaseFirestore.collection("users").document(mUserId).set(user)
+                            .addOnCompleteListener {
+                                println("debug: @$mUserId successfully added to Firestore ($mFirebaseFirestore)")
+                            }.addOnFailureListener {
                             println("debug: @$mUserId failed to be added to Firestore ($mFirebaseFirestore)")
                         }
+
+                        val pref: SharedPreferences = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
+                        val editor: SharedPreferences.Editor = pref.edit()
+
+                        // save email and password to log user back in later
+                        editor.putString(EMAIL_KEY, emailText.text.toString().trim())
+                        editor.putString(PASSWORD_KEY, passwordText.text.toString().trim())
+                        editor.putBoolean(Globals.LOGGED_IN_KEY, true)
+
+                        // apply changed and save to shared preferences
+                        editor.apply()
+
+                        // launch main activity
+                        mainActivityIntent = Intent(this, MainActivity::class.java)
+                        startActivity(mainActivityIntent)
+
+                        // make a toast
+                        val toast = Toast.makeText(this, TOAST_TEXT, Toast.LENGTH_LONG)
+                        toast.show()
                     }
+
+                } else {
+                    val builder = AlertDialog.Builder(this)
+                    builder.setMessage(R.string.used_email_error_message)
+                    builder.setTitle(R.string.signup_error_title)
+                    builder.setPositiveButton(android.R.string.ok, null)
+
+                    val dialog = builder.create()
+                    dialog.show()
                 }
-                else println("sign up failed")
             }
-            return true
         }
     }
 
