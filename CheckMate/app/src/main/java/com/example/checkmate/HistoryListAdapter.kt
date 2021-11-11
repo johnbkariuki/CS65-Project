@@ -44,6 +44,7 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
 
         // calculate amount user paid
         var amountPaid = 0.0
+        val requestor = receipt.payer
         val translatedPayerList = Globals.Byte2ArrayList(receipt.payerList)
         val translatedPriceList = Globals.Byte2ArrayList(receipt.priceList)
         for (i in 0 until translatedPayerList.size) {
@@ -55,7 +56,25 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         }
 
         // set textviews
-        amountPaidText.text = "-$amountPaid"
+        if (!requestor.equals(username)) {
+            amountPaidText.text = "You paid @$requestor: $${String.format("%.2f", amountPaid)}"
+        }
+        else {
+            var payers = ""
+            val list = Globals.Byte2ArrayList(receipt.payerList)
+            val set = HashSet<String>()
+            for (i in 0 until list.size) {
+                if (!set.contains(list[i])) {
+                    payers += when {
+                        list.size == 1 -> "@${list[i]}"
+                        list.size > 1 && i < list.size - 1 -> "@${list[i]}, "
+                        else -> "& @${list[i]}"
+                    }
+                    set.add(list[i])
+                }
+            }
+            amountPaidText.text = "$payers paid you: $${String.format("%.2f", amountPaid)}"
+        }
         receiptTitleText.text = receipt.title
         receiptDateText.text = receipt.date
 

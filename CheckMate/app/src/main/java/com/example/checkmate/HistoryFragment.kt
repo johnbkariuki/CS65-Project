@@ -9,13 +9,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ListView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 
 class HistoryFragment : Fragment() {
 
@@ -24,6 +27,7 @@ class HistoryFragment : Fragment() {
     private var historyList = listOf<ReceiptEntry>()
     private lateinit var listAdapter: HistoryListAdapter
     private lateinit var historyListView: ListView
+    private lateinit var headerText: TextView
 
     // for accessing firebase
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -43,6 +47,8 @@ class HistoryFragment : Fragment() {
         val databaseDao = database.receiptEntryDatabaseDao
         val viewModelFactory = ReceiptEntryViewModelFactory(databaseDao)
         val receiptEntryViewModel = ViewModelProvider(this, viewModelFactory).get(ReceiptEntryViewModel::class.java)
+
+        headerText = view.findViewById(R.id.historyHeader)
 
         // check if logged in
         val pref = requireActivity().getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
@@ -67,6 +73,7 @@ class HistoryFragment : Fragment() {
                 .addOnSuccessListener {
                     // get username
                     username = it.data!!["username"].toString()
+                    headerText.text = "Welcome, @$username! \nHere's a look at your payment history:"
 
                     // attaching list adapter
                     listAdapter = HistoryListAdapter(requireActivity(), historyList)
@@ -75,10 +82,39 @@ class HistoryFragment : Fragment() {
                     historyListView.adapter = listAdapter
 
                     // create list
+                    /*
                     receiptEntryViewModel.receiptList.observe(requireActivity(), Observer { it ->
                         listAdapter.replace(it)
                         listAdapter.notifyDataSetChanged()
                     })
+                     */
+            
+            mFirebaseFirestore.collection("users").document(mUserId).addSnapshotListener { value, error ->
+                val receipts = value!!.data!!["receipts"] as ArrayList<*>
+                val historyListFirestore = ArrayList<ReceiptEntry>()
+                if (receipts.isNotEmpty()) {
+                    for (receipt in receipts) {
+                        val receiptObj = receipt as HashMap<*, *>
+                        val receiptEntry = ReceiptEntry()
+                        receiptEntry.date = receiptObj["date"].toString()
+                        receiptEntry.itemList =
+                            Globals.ArrayList2Byte(receiptObj["itemList"] as ArrayList<String>)
+                        receiptEntry.payer = receiptObj["payer"].toString()
+                        receiptEntry.payerList =
+                            Globals.ArrayList2Byte(receiptObj["payerList"] as ArrayList<String>)
+                        receiptEntry.priceList =
+                            Globals.ArrayList2Byte(receiptObj["priceList"] as ArrayList<String>)
+                        receiptEntry.title = receiptObj["title"].toString()
+
+                        // add receipt entry to history list firestore
+                        historyListFirestore.add(receiptEntry)
+                    }
+                }
+
+                // notify dataset changed
+                listAdapter.replace(historyListFirestore)
+                listAdapter.notifyDataSetChanged()
+            }
 
                     // check for if user clicks on item in history list
                     historyListView.setOnItemClickListener() { parent: AdapterView<*>, view: View, position: Int, id: Long ->

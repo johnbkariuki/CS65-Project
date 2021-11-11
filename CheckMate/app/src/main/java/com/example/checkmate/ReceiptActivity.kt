@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.lang.NumberFormatException
 import java.util.*
@@ -345,6 +346,12 @@ class ReceiptActivity : AppCompatActivity() {
 
         // insert into database
         receiptEntryViewModel.insert(receiptEntry)
+
+        // save the receipt in firebase
+        val receipt = Receipt(title, date, payer, priceList, itemList, payerList)
+        storeToFirestore(payers, receipt)
+        if (!payers.contains(mUserId)) mFirebaseFirestore.collection("users").document(mUserId)
+                    .update("receipts", FieldValue.arrayUnion(receipt))
     }
 
     // for when user submits receipt
@@ -356,6 +363,26 @@ class ReceiptActivity : AppCompatActivity() {
             // display toast and exit activity
             Toast.makeText(this, Globals.RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
             finish()
+        }
+    }
+
+    // helper function to save in firestore db for all payers
+    fun storeToFirestore(payers: Set<String>, receipt: Receipt) {
+        // do for each payer
+        for (payer in payers) {
+            // grab the user from firestore and modify their receipt history w this new receipt
+            mFirebaseFirestore.collection("users").whereEqualTo("username", payer)
+                .get()
+                .addOnCompleteListener {
+                    println("completed!")
+                    val user = it.result.documents
+                    for (value in user) {
+                        val id = value.id
+                        println("added to: ${value}")
+                        mFirebaseFirestore.collection("users").document(id)
+                            .update("receipts", FieldValue.arrayUnion(receipt))
+                    }
+                }
         }
     }
 }
