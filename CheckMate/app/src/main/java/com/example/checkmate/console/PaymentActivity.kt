@@ -10,9 +10,18 @@ import com.example.checkmate.R
 
 class PaymentActivity: AppCompatActivity() {
 
+    // Request lists
+    private lateinit var amountsList: ArrayList<Double>
+    private lateinit var notesList: ArrayList<String>
+    private lateinit var idsList: ArrayList<String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_payment)
+
+        amountsList = savedInstanceState?.getSerializable("amountsList") as ArrayList<Double>
+        notesList = savedInstanceState?.getSerializable("notesList") as ArrayList<String>
+        idsList = savedInstanceState?.getSerializable("idsList") as ArrayList<String>
     }
 
     fun onPaymentButtonClick(view: View) {
@@ -32,14 +41,10 @@ class PaymentActivity: AppCompatActivity() {
         bundle.putString("username", username)
         bundle.putString("password", password)
 
-        // Temporary request lists
-        val amounts: ArrayList<Double> = arrayListOf(1.00)
-        val notes: ArrayList<String> = arrayListOf("this is a test")
-        val ids: ArrayList<String> = arrayListOf("3397046761422848359")
-
-        bundle.putSerializable("amountsList", amounts)
-        bundle.putSerializable("notesList", notes)
-        bundle.putSerializable("idsList", ids)
+        // Request lists
+        bundle.putSerializable("amountsList", amountsList)
+        bundle.putSerializable("notesList", notesList)
+        bundle.putSerializable("idsList", idsList)
 
         intent.putExtras(bundle)
         startActivity(intent)

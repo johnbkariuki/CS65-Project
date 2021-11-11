@@ -53,7 +53,7 @@ implements ViewTreeObserver.OnGlobalLayoutListener {
         });
 
         /*
-         * Changing element visibility depending on Python output
+         * Put returned value in an intent
          */
         TextView tvHidden = findViewById(resId("id", "tvHidden"));
         task.output.observe(this, new Observer<CharSequence>() {
@@ -69,7 +69,11 @@ implements ViewTreeObserver.OnGlobalLayoutListener {
                 }
                 else if (arr[0].equals("unsuccessful_ids")) {
                     Intent intent = new Intent(ConsoleActivity.this, VenmoAdapter.class);
-                    intent.putExtra("unsuccessful", arr[1]);
+                    String ret = "";
+                    for(int i=1; i<arr.length; i++) {
+                        ret += arr[i] + ",";
+                    }
+                    intent.putExtra("unsuccessful", ret);
                     ConsoleActivity.this.startActivity(intent);
                 }
             }

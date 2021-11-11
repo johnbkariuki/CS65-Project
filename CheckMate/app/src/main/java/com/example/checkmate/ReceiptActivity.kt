@@ -19,6 +19,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.theartofdev.edmodo.cropper.CropImage
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.checkmate.console.PaymentActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
@@ -356,6 +357,51 @@ class ReceiptActivity : AppCompatActivity() {
         receiptEntryViewModel.insert(receiptEntry)
     }
 
+    fun sendVenmoRequests() {
+        val map: MutableMap<String, Double> = mutableMapOf()
+        for(i in 0..payerList.size) {
+            mFirebaseFirestore.collection("users")
+                .whereArrayContains("username", payerList[i]).get().addOnCompleteListener {
+                    val arr = mutableListOf<String>()
+                    for (doc in it.result.documents) {
+                        val venmoId = doc.data!!["venmo"].toString()
+                        arr.add(venmoId)
+                    }
+                    if(arr.size >= 1) {
+                        if(map.containsKey(arr[1])) {
+                            val currentAmount = map[arr[1]]
+                            if (currentAmount != null) {
+                                map[arr[1]] = currentAmount + priceList[i].toDouble()
+                            }
+                        } else {
+                            map[arr[1]] = priceList[i].toDouble()
+                        }
+                    }
+                }
+        }
+
+        val amountsList = arrayListOf<Double>()
+        val notesList = arrayListOf<String>()
+        val idsList = arrayListOf<String>()
+        val keySet = map.keys
+        val iterator = keySet.iterator()
+        while(iterator.hasNext()) {
+            val next = iterator.next()
+            idsList.add(next)
+            notesList.add("CheckMate receipt")
+            amountsList.add(map[next]!!)
+        }
+
+        val intent = Intent(this, PaymentActivity::class.java)
+        val bundle = Bundle()
+        bundle.putSerializable("amountsList", amountsList)
+        bundle.putSerializable("notesList", notesList)
+        bundle.putSerializable("idsList", idsList)
+        intent.putExtras(bundle)
+        startActivity(intent)
+        finish()
+    }
+
     // for when user submits receipt
     fun onSubmitReceipt(view: View) {
         if (receiptMode == Globals.RECEIPT_NEW_MODE) {
@@ -363,6 +409,7 @@ class ReceiptActivity : AppCompatActivity() {
 
             if(receiptList.isNotEmpty()){
                 saveReceiptEntry()
+                sendVenmoRequests()
 
                 // display toast and exit activity
                 Toast.makeText(this, Globals.RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
