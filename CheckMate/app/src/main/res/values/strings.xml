@@ -41,5 +41,6 @@
 
     <!-- profile activities -->
     <string name="change_photo_button">Change</string>
+    <string name="update_venmo">Update Venmo ID</string>
 
 </resources>

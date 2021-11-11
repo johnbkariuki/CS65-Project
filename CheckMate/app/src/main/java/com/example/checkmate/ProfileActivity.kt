@@ -32,6 +32,7 @@ import java.lang.StringBuilder
 import com.google.firebase.database.DatabaseError
 
 import androidx.annotation.NonNull
+import com.example.checkmate.console.LoginActivity
 
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ktx.getValue
@@ -66,6 +67,9 @@ class ProfileActivity : AppCompatActivity() {
 
     //map
     private lateinit var user: User
+
+    // venmo
+    private lateinit var venmoBtn: Button
 
     private val cropActivityResultContract = object: ActivityResultContract<Any, Uri?>(){
         override fun createIntent(context: Context, input: Any?): Intent {
@@ -156,6 +160,12 @@ class ProfileActivity : AppCompatActivity() {
             cropActivityResultLauncher.launch(null)
         }
 
+        // venmo button
+        venmoBtn = findViewById<Button>(R.id.venmo_profile_button)
+        venmoBtn.setOnClickListener {
+            updateVenmo()
+        }
+
     }
 
     override fun onResume() {
@@ -217,5 +227,9 @@ class ProfileActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun updateVenmo() {
+        startActivity(Intent(this, LoginActivity::class.java))
     }
 }
