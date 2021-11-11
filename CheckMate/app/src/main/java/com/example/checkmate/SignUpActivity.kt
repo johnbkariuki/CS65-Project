@@ -96,7 +96,7 @@ class SignUpActivity: AppCompatActivity() {
 
                         // input into database
                         val user =
-                            User(username, email, password, venmo, generateKeywords(username))
+                            User(username, email, password, venmo, generateKeywords(username), ArrayList<Receipt>())
                         mDatabase.child("users").child(mUserId).child("user").child("username")
                             .push().setValue(user.username)
                         mDatabase.child("users").child(mUserId).child("user").child("email")
@@ -110,6 +110,9 @@ class SignUpActivity: AppCompatActivity() {
                         mDatabase.child("users").child(mUserId).child("user").child("keywords")
                             .push()
                             .setValue(user.keywords)
+                        mDatabase.child("users").child(mUserId).child("user").child("receipts")
+                            .push()
+                            .setValue(user.receipts)
 
                         // input into firestore
                         mFirebaseFirestore.collection("users").document(mUserId).set(user)
