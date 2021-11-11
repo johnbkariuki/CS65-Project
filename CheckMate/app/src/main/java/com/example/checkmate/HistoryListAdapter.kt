@@ -66,9 +66,9 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
             receiptTitleText.text = receipt.title
             receiptDateText.text = receipt.date
 
-        }catch (e: NumberFormatException) {
+        } catch (e: NumberFormatException) {
             // set textviews
-            amountPaidText.text = "Unable to Show Amount. Tap for more details"
+            amountPaidText.text = Globals.AMOUNT_PAID_ERROR
             receiptTitleText.text = receipt.title
             receiptDateText.text = receipt.date
         }
@@ -76,8 +76,7 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         // set textviews
         if (!requestor.equals(username)) {
             amountPaidText.text = "You paid @$requestor: $${String.format("%.2f", amountPaid)}"
-        }
-        else {
+        } else {
             var payers = ""
             val list = Globals.Byte2ArrayList(receipt.payerList)
             val set = HashSet<String>()
