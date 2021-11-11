@@ -64,8 +64,11 @@ implements ViewTreeObserver.OnGlobalLayoutListener {
                 String[] arr = str.split(" ");
                 if (arr[0].equals("user_id")) {
                     Intent intent = new Intent(ConsoleActivity.this, VenmoAdapter.class);
-                    intent.putExtra("venmoId", arr[1]);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("venmoId", arr[1]);
+                    intent.putExtras(bundle);
                     ConsoleActivity.this.startActivity(intent);
+                    finish();
                 }
                 else if (arr[0].equals("unsuccessful_ids")) {
                     Intent intent = new Intent(ConsoleActivity.this, VenmoAdapter.class);
@@ -73,8 +76,11 @@ implements ViewTreeObserver.OnGlobalLayoutListener {
                     for(int i=1; i<arr.length; i++) {
                         ret += arr[i] + ",";
                     }
-                    intent.putExtra("unsuccessful", ret);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("unsuccessful", ret);
+                    intent.putExtras(bundle);
                     ConsoleActivity.this.startActivity(intent);
+                    finish();
                 }
             }
         });

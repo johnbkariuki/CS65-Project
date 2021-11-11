@@ -6,7 +6,10 @@ import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
 import com.example.checkmate.R
+import com.example.checkmate.ReceiptActivity
 
 class PaymentActivity: AppCompatActivity() {
 
@@ -19,9 +22,11 @@ class PaymentActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_payment)
 
-        amountsList = savedInstanceState?.getSerializable("amountsList") as ArrayList<Double>
-        notesList = savedInstanceState?.getSerializable("notesList") as ArrayList<String>
-        idsList = savedInstanceState?.getSerializable("idsList") as ArrayList<String>
+        val serBundle = intent.extras
+
+        amountsList = serBundle?.getSerializable("amountsList") as ArrayList<Double>
+        notesList = serBundle?.getSerializable("notesList") as ArrayList<String>
+        idsList = serBundle?.getSerializable("idsList") as ArrayList<String>
     }
 
     fun onPaymentButtonClick(view: View) {
@@ -47,12 +52,13 @@ class PaymentActivity: AppCompatActivity() {
         bundle.putSerializable("idsList", idsList)
 
         intent.putExtras(bundle)
+        Python.start(AndroidPlatform(applicationContext))
         startActivity(intent)
         finish()
     }
 
     fun onPaymentBackClick(view: View) {
-        startActivity(Intent(this, VenmoMainActivity::class.java))
+        startActivity(Intent(this, ReceiptActivity::class.java))
         finish()
     }
 

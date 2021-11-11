@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.chaquo.python.Python
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
@@ -24,10 +25,15 @@ class VenmoAdapter: AppCompatActivity() {
     private var password = ""
 
     override fun onCreate(bundle: Bundle?) {
+        println("debug: venmoadapter oncreate")
         super.onCreate(bundle)
-        val venmoId: String? = bundle?.getString("venmoId")
-        val unsuccessful: String? = bundle?.getString("unsuccessful")
+
+        val strBundle = intent.extras
+        val venmoId: String? = strBundle?.getString("venmoId")
+        val unsuccessful: String? = strBundle?.getString("unsuccessful")
+
         if(venmoId != null) {
+            println("debug: venmoid not null")
             addId(venmoId)
         } else if(unsuccessful != null) {
             handleUnsuccessful(unsuccessful)
@@ -62,10 +68,12 @@ class VenmoAdapter: AppCompatActivity() {
                 "venmo" to str     // String is venmo id
             )
         )
+        println("debug: venmo ID updated $str")
         Toast.makeText(this, "Venmo ID updated $str", Toast.LENGTH_SHORT).show()
     }
 
     private fun handleUnsuccessful(str: String) {
+        println("debug: unsuccessful: $str")
         Toast.makeText(this, "Unsuccessful ids: $str", Toast.LENGTH_LONG).show()
     }
 

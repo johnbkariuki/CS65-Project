@@ -358,15 +358,21 @@ class ReceiptActivity : AppCompatActivity() {
     }
 
     fun sendVenmoRequests() {
+        println("debug: sendvenmorequests")
+        // Map for final split: key is venmo id, value is amount to be requested
         val map: MutableMap<String, Double> = mutableMapOf()
-        for(i in 0..payerList.size) {
+        for(i in 0..payerList.size-1) {
+            println("debug: svr loop runs")
+            // Get venmo id by username for each payer
             mFirebaseFirestore.collection("users")
                 .whereArrayContains("username", payerList[i]).get().addOnCompleteListener {
                     val arr = mutableListOf<String>()
                     for (doc in it.result.documents) {
                         val venmoId = doc.data!!["venmo"].toString()
+                        println("debug: venmoid $venmoId")
                         arr.add(venmoId)
                     }
+                    // Update amount to be paid in map
                     if(arr.size >= 1) {
                         if(map.containsKey(arr[1])) {
                             val currentAmount = map[arr[1]]
@@ -380,6 +386,7 @@ class ReceiptActivity : AppCompatActivity() {
                 }
         }
 
+        // List of requests' amounts, notes, ids
         val amountsList = arrayListOf<Double>()
         val notesList = arrayListOf<String>()
         val idsList = arrayListOf<String>()
@@ -390,8 +397,10 @@ class ReceiptActivity : AppCompatActivity() {
             idsList.add(next)
             notesList.add("CheckMate receipt")
             amountsList.add(map[next]!!)
+            println("debug: receiptactivity $next ${map[next]!!}")
         }
 
+        // Pass the lists to PaymentActivity
         val intent = Intent(this, PaymentActivity::class.java)
         val bundle = Bundle()
         bundle.putSerializable("amountsList", amountsList)
