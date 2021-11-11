@@ -13,6 +13,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.ByteArrayInputStream
 import java.io.ObjectInputStream
+import java.lang.NumberFormatException
 
 // for formatting items in the receipt list
 class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntry>) : BaseAdapter(){
@@ -47,12 +48,29 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         val requestor = receipt.payer
         val translatedPayerList = Globals.Byte2ArrayList(receipt.payerList)
         val translatedPriceList = Globals.Byte2ArrayList(receipt.priceList)
-        for (i in 0 until translatedPayerList.size) {
-            val payer = translatedPayerList[i]
-            val price = translatedPriceList[i].toFloat()
-            if (payer == username) {
-                amountPaid += price
+
+        println("debug:$translatedPayerList")
+        println("debug:$translatedPriceList")
+
+        try {
+            for (i in 0 until translatedPayerList.size) {
+                val payer = translatedPayerList[i]
+                val price = translatedPriceList[i].toFloat()
+                if (payer == username) {
+                    amountPaid += price
+                }
             }
+
+            // set textviews
+            amountPaidText.text = String.format("%.2f",-amountPaid) // round amount to two decimal places
+            receiptTitleText.text = receipt.title
+            receiptDateText.text = receipt.date
+
+        }catch (e: NumberFormatException) {
+            // set textviews
+            amountPaidText.text = "Unable to Show Amount. Tap for more details"
+            receiptTitleText.text = receipt.title
+            receiptDateText.text = receipt.date
         }
 
         // set textviews
@@ -77,6 +95,7 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         }
         receiptTitleText.text = receipt.title
         receiptDateText.text = receipt.date
+
 
         return view
     }
