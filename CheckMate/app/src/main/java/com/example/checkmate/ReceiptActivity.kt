@@ -88,6 +88,7 @@ class ReceiptActivity : AppCompatActivity() {
         receiptListView.adapter = adapterEntry
 
         receiptMode = intent.getStringExtra(Globals.RECEIPT_MODE_KEY)
+
         if (receiptMode == null) {
             receiptMode = Globals.RECEIPT_NEW_MODE
         }
@@ -173,8 +174,10 @@ class ReceiptActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
         val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
         val addedPayersSet = pref.getStringSet(Globals.ADDED_PAYERS_KEY, null)
+
         // if resuming after user added new payers, add to set of payers for popups
         if (addedPayersSet != null) {
             for (user in addedPayersSet) {
@@ -293,10 +296,16 @@ class ReceiptActivity : AppCompatActivity() {
             val builder = AlertDialog.Builder(this)
             builder.setMessage(R.string.receipt_scanning_error)
             builder.setTitle(R.string.signup_error_title)
-            builder.setPositiveButton(android.R.string.ok){ _, _ -> getReceipt()}
+            builder.setPositiveButton(android.R.string.ok){ _, _ -> restartCropActivity()}
             val dialog = builder.create()
             dialog.show()
         }
+    }
+
+    fun restartCropActivity(){
+       val restart_receipt_intent = Intent(this,ReceiptActivity::class.java)
+        finish()
+        startActivity(restart_receipt_intent)
     }
 
     // saves receipt entry to database
@@ -351,11 +360,16 @@ class ReceiptActivity : AppCompatActivity() {
     fun onSubmitReceipt(view: View) {
         if (receiptMode == Globals.RECEIPT_NEW_MODE) {
             // save receipt
-            saveReceiptEntry()
 
-            // display toast and exit activity
-            Toast.makeText(this, Globals.RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
-            finish()
+            if(receiptList.isNotEmpty()){
+                saveReceiptEntry()
+
+                // display toast and exit activity
+                Toast.makeText(this, Globals.RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
+                finish()
+            }else{
+                Toast.makeText(this, Globals.RECEIPT_SUBMISSION_FAILURE, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
