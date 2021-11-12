@@ -175,14 +175,6 @@ class ReceiptActivity : AppCompatActivity() {
             val titleEditText = findViewById<EditText>(R.id.receipt_title)
             titleEditText.setText(title)
         }
-
-//         for when user presses back, want to exit activity entirely
-//        backPressedCallback = object : OnBackPressedCallback(true) {
-//            override fun handleOnBackPressed() {
-//                finish()
-//            }
-//        }
-//        onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
 
     override fun onResume() {
@@ -386,18 +378,13 @@ class ReceiptActivity : AppCompatActivity() {
         receiptEntryViewModel.insert(receiptEntry)
 
         // save the receipt in firebase
-
-        val receipt = Receipt(title, date, payer, priceList, itemList, payerList)
-        storeToFirestore(payers, receipt)
-        if (!payers.contains(mUserId)) mFirebaseFirestore.collection("users").document(mUserId)
-                    .update("receipts", FieldValue.arrayUnion(receipt))
+        storeToFirebase(payers,payerList,title, date, mUserId, priceList, itemList)
     }
 
     // for when user submits receipt
     fun onSubmitReceipt(view: View) {
         if (receiptMode == Globals.RECEIPT_NEW_MODE) {
             // save receipt
-
             if(receiptList.isNotEmpty()){
                 saveReceiptEntry()
 
@@ -411,7 +398,7 @@ class ReceiptActivity : AppCompatActivity() {
     }
 
     // helper function to save in firestore db for all payers
-    fun storeToFirestore(payers: List<String>, receipt: Receipt) {
+    fun storeToInfo(payers: List<String>, receipt: Receipt) {
         // do for each payer
         for (payer in payers) {
             // grab the user from firestore and modify their receipt history w this new receipt
@@ -430,7 +417,18 @@ class ReceiptActivity : AppCompatActivity() {
         }
     }
 
-    fun chicken(){
-        //sdfsfsdfsd
+    fun storeToFirebase(payers: List<String>, payersList: List<String>, title: String, date: String, payer_id :String, priceList: List<String>, itemList: List<String>){
+        mFirebaseFirestore.collection("users").get().addOnSuccessListener {
+            val payersList_by_id = ArrayList<String>()
+            for (document in it.documents){
+                if (payersList.contains(document.data?.get("username"))){
+                    payersList_by_id.add(document.id)
+                }
+            }
+            val receipt = Receipt(title, date, payer_id, priceList, itemList, payersList_by_id)
+            storeToInfo(payers,receipt)
+            if (!payers.contains(mUserId)) mFirebaseFirestore.collection("users").document(mUserId)
+                    .update("receipts", FieldValue.arrayUnion(receipt))
+        }
     }
 }
