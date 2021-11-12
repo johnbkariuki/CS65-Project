@@ -53,6 +53,9 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var mFirebaseFirestore: FirebaseFirestore
     private lateinit var mCurrUser: FirebaseUser
 
+    // for venmo
+    private lateinit var mUsername: String
+
     // for saving receipt
     private lateinit var receiptEntry: ReceiptEntry
     private var title = "No Title"
@@ -116,6 +119,12 @@ class ReceiptActivity : AppCompatActivity() {
             if (mFirebaseAuth.currentUser != null) {
                 mCurrUser = mFirebaseAuth.currentUser!!
                 mUserId = mCurrUser.uid
+
+                // Get username for venmo
+                mFirebaseFirestore.collection("users").document(mUserId).get()
+                    .addOnSuccessListener {
+                        mUsername = it.data!!["username"].toString()
+                    }
             }
 
             mFirebaseFirestore.collection("users").document(mUserId).get()
@@ -358,11 +367,9 @@ class ReceiptActivity : AppCompatActivity() {
     }
 
     fun sendVenmoRequests() {
-        println("debug: sendvenmorequests")
         // Map for final split: key is venmo id, value is amount to be requested
         val map: MutableMap<String, Double> = mutableMapOf()
         for(i in 0 until payerList.size) {
-            println("debug: svr loop runs")
             // Get venmo id by username for each payer
             mFirebaseFirestore.collection("users")
                 .whereEqualTo("username", payerList[i]).get().addOnCompleteListener {
@@ -373,7 +380,7 @@ class ReceiptActivity : AppCompatActivity() {
                         println("debug: venmoid in loop $venmoId")
                     }
                     // Update amount to be paid in map
-                    if(venmoId != "") {
+                    if(venmoId != "" && payerList[i] != mUsername) {
                         if(map.containsKey(venmoId)) {
                             println("debug: map contains key")
                             val currentAmount = map[venmoId]
