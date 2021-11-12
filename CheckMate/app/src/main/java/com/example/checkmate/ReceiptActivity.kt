@@ -386,6 +386,7 @@ class ReceiptActivity : AppCompatActivity() {
         receiptEntryViewModel.insert(receiptEntry)
 
         // save the receipt in firebase
+
         val receipt = Receipt(title, date, payer, priceList, itemList, payerList)
         storeToFirestore(payers, receipt)
         if (!payers.contains(mUserId)) mFirebaseFirestore.collection("users").document(mUserId)
@@ -427,5 +428,9 @@ class ReceiptActivity : AppCompatActivity() {
                     }
                 }
         }
+    }
+
+    fun chicken(){
+        //sdfsfsdfsd
     }
 }
