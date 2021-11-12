@@ -40,7 +40,7 @@ import com.google.firebase.database.ktx.getValue
 class ProfileActivity : AppCompatActivity() {
 
     // views
-    private lateinit var logoutButton: Button
+    // private lateinit var logoutButton: Button
     private lateinit var saveButton: Button
     private lateinit var usernameText: TextView
     private lateinit var emailText: TextView
@@ -116,6 +116,7 @@ class ProfileActivity : AppCompatActivity() {
 
         // set onclick listeners
         // logoutButton
+        /*
         logoutButton = findViewById(R.id.logout_button)
         logoutButton.setOnClickListener {
             val editor: SharedPreferences.Editor = pref.edit()
@@ -130,6 +131,7 @@ class ProfileActivity : AppCompatActivity() {
             val intent = Intent(this, SignInSignUpActivity::class.java)
             startActivity(intent)
         }
+         */
 
         // saveButton
         saveButton = findViewById(R.id.save_edit_button)
@@ -211,8 +213,22 @@ class ProfileActivity : AppCompatActivity() {
         return when(item.itemId){
             R.id.edit_profile_button -> {
                 Toast.makeText(this, "You can now edit your profile", Toast.LENGTH_SHORT).show()
-                val update_profile_intent = Intent(this,UpdateProfileActivity::class.java)
-                startActivity(update_profile_intent)
+                val updateProfileIntent = Intent(this,UpdateProfileActivity::class.java)
+                startActivity(updateProfileIntent)
+                true
+            }
+            R.id.logout_profile_button -> {
+                val editor: SharedPreferences.Editor = pref.edit()
+                editor.putString(SignUpActivity.EMAIL_KEY, "")
+                editor.putString(SignUpActivity.PASSWORD_KEY, "")
+                editor.putBoolean(Globals.LOGGED_IN_KEY,false)
+                editor.apply()
+
+                // logout
+                mFirebaseAuth.signOut()
+
+                val intent = Intent(this, SignInSignUpActivity::class.java)
+                startActivity(intent)
                 true
             }
             else -> super.onOptionsItemSelected(item)
