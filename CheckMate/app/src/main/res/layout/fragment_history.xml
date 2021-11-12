@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
-        android:textSize="25sp"
+        android:textSize="18sp"
         android:layout_gravity="center_horizontal"
         android:id="@+id/historyHeader"
         android:text="@string/history_header"/>

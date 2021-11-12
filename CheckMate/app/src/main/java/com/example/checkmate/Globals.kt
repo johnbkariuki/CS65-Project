@@ -28,8 +28,9 @@ class Globals {
         val ADDED_PAYERS_KEY = "add payers key"
 
         // receiptEntryListAdapter
-        val HIDE_POPUP = "hide popup"
-        val SHOW_POPUP = "show popup"
+        val HIDE_DROPDOWN = "hide dropdown"
+        val SHOW_DROPDOWN = "show dropdown"
+        val AMOUNT_PAID_ERROR = "Unable to Show Amount. Tap for more details"
 
         // profile, shared preferences
         val LOGGED_IN_KEY = "logged_in_key"

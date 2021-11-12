@@ -13,6 +13,7 @@
     <string name="title_activity_receipt">PaymentActivity</string>
     <string name="receipt_title_hint">Your Title Here</string>
     <string name="add_payer_button">Add Payer</string>
+    <string name="select_payer_hint">Select Payer</string>
 
     <!--  history fragment  -->
     <string name="history_header">Your Payment History</string>

@@ -10,17 +10,19 @@ import org.w3c.dom.Comment
 abstract class ReceiptEntryDatabase : RoomDatabase() {
     abstract val receiptEntryDatabaseDao: ReceiptEntryDatabaseDao
 
-    companion object{
+    companion object {
         //The Volatile keyword guarantees visibility of changes to the INSTANCE variable across threads
         @Volatile
         private var INSTANCE: ReceiptEntryDatabase? = null
 
-        fun getInstance(context: Context) : ReceiptEntryDatabase{
-            synchronized(this){
+        fun getInstance(context: Context): ReceiptEntryDatabase {
+            synchronized(this) {
                 var instance = INSTANCE
-                if(instance == null){
-                    instance = Room.databaseBuilder(context.applicationContext,
-                        ReceiptEntryDatabase::class.java, "receipt_entry_table").build()
+                if (instance == null) {
+                    instance = Room.databaseBuilder(
+                        context.applicationContext,
+                        ReceiptEntryDatabase::class.java, "receipt_entry_table"
+                    ).build()
                     INSTANCE = instance
                 }
                 return instance

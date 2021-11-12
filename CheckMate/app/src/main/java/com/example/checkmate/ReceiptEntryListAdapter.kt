@@ -6,13 +6,22 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import android.widget.ArrayAdapter
+import android.widget.Toast
+
+import android.widget.AdapterView
+
+
+
+
+
+
 
 // for formatting items in the receipt list
-class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<String, String>>) : BaseAdapter(){
+class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<String, String>>) : BaseAdapter() {
 
-    private lateinit var selectPayerButton: Button
-    var displayMode = Globals.SHOW_POPUP
-    var payers = mutableSetOf<String>()
+    var displayMode = Globals.SHOW_DROPDOWN
+    var payers = mutableListOf<String>()
 
     // key = row position, value = payer username
     val payersMapStore = mutableMapOf<Int, String>()
@@ -45,18 +54,19 @@ class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<S
         val lineDisplay = "$item ($$price)"
         receiptLine.text = lineDisplay
 
-        // select payer popup menu
-        selectPayerButton = view.findViewById<Button>(R.id.select_payer_button)
-        var payer = ""
+        // select payer dropdown menu
+        val selectPayerButton = view.findViewById<Button>(R.id.select_payer_button)
+
+//        var payer = ""
         // if payer has been selected, display
         if (payersMapStore.containsKey(position)) {
-            payer = payersMapStore[position].toString()
+            val payer = payersMapStore[position].toString()
+            selectPayerButton.text = payer
         }
-        val payerString = "${Globals.PAYER_STR} $payer"
-        selectPayerButton.text = payerString
+//        val payerString = "$payer"
 
         // if creatingn new receipt, show popup
-        if (displayMode == Globals.SHOW_POPUP) {
+        if (displayMode == Globals.SHOW_DROPDOWN) {
             // listener for popup
             selectPayerButton.setOnClickListener {
                 showPopupMenu(selectPayerButton, position)
