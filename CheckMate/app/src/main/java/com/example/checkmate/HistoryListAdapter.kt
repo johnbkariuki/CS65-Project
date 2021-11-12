@@ -38,7 +38,8 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         // get ReceiptEntry object
         val receipt = historyList[position]
 
-        // get TextViews
+        // get TextViews, icons
+        val historyIcon = view.findViewById<ImageButton>(R.id.history_icon)
         val amountPaidText = view.findViewById<TextView>(R.id.amount_paid)
         val receiptTitleText = view.findViewById<TextView>(R.id.receipt_title)
         val receiptDateText = view.findViewById<TextView>(R.id.receipt_date)
@@ -76,7 +77,9 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         // set textviews
         if (!requestor.equals(username)) {
             amountPaidText.text = "You paid @$requestor: $${String.format("%.2f", amountPaid)}"
+            historyIcon.setBackgroundResource(R.drawable.ic_money_paid);
         } else {
+            historyIcon.setBackgroundResource(R.drawable.ic_money_received);
             var payers = ""
             val list = Globals.Byte2ArrayList(receipt.payerList)
             val set = HashSet<String>()
