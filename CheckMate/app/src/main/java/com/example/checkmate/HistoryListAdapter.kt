@@ -82,7 +82,7 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
             }
 
             // set textviews
-            amountPaidText.text = String.format("%.2f",-amountPaid) // round amount to two decimal places
+            // amountPaidText.text = String.format("%.2f",-amountPaid) // round amount to two decimal places
             receiptTitleText.text = receipt.title
             receiptDateText.text = receipt.date
 
