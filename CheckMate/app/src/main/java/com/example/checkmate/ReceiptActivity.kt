@@ -75,7 +75,12 @@ class ReceiptActivity : AppCompatActivity() {
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
-            return CropImage.getActivityResult(intent)?.uri
+            return if (resultCode == RESULT_OK){
+                CropImage.getActivityResult(intent)?.uri
+            } else{
+                finish()
+                null
+            }
         }
     }
 
@@ -419,13 +424,18 @@ class ReceiptActivity : AppCompatActivity() {
 
     fun storeToFirebase(payers: List<String>, payersList: List<String>, title: String, date: String, payer_id :String, priceList: List<String>, itemList: List<String>){
         mFirebaseFirestore.collection("users").get().addOnSuccessListener {
-            val payersList_by_id = ArrayList<String>()
+            val payersList_by_id = Array<String>(payersList.size){""}
+            val mutable_payersList_by_id = payersList_by_id.toMutableList()
             for (document in it.documents){
-                if (payersList.contains(document.data?.get("username"))){
-                    payersList_by_id.add(document.id)
+                for (index in 0 until payersList.size){
+                    if (payersList[index] == document.data?.get("username")){
+                        mutable_payersList_by_id[index] = document.id
+                    }
                 }
             }
-            val receipt = Receipt(title, date, payer_id, priceList, itemList, payersList_by_id)
+            println("debug $mutable_payersList_by_id")
+
+            val receipt = Receipt(title, date, payer_id, priceList, itemList, mutable_payersList_by_id)
             storeToInfo(payers,receipt)
             if (!payers.contains(mUserId)) mFirebaseFirestore.collection("users").document(mUserId)
                     .update("receipts", FieldValue.arrayUnion(receipt))
