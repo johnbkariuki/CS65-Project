@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AlertDialog
@@ -19,6 +20,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.theartofdev.edmodo.cropper.CropImage
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
@@ -38,12 +40,12 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var receiptImage: InputImage
 
     // for UI
-    private lateinit var addPayerButton: Button
-    private lateinit var submitButton: Button
+    private lateinit var addPayerButton: FloatingActionButton
+    private lateinit var submitButton: FloatingActionButton
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, String>>()
     private lateinit var adapterEntry: ReceiptEntryListAdapter
-    private var payers = mutableSetOf<String>()  // payers in popup
+    private var payers = mutableListOf<String>()  // payers in popup
 
     // for firebase
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -60,8 +62,10 @@ class ReceiptActivity : AppCompatActivity() {
     private var payer = ""
     private var priceList = arrayListOf<String>()
     private var itemList = arrayListOf<String>()
-    private var quantityList = arrayListOf<String>()
+    private var quantityList = arrayListOf<Float>()
     private var payerList = arrayListOf<String>()  // index = receipt item row, value = payer
+
+    private lateinit var backPressedCallback: OnBackPressedCallback
 
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
         override fun createIntent(context: Context, input: Any?): Intent {
@@ -128,7 +132,7 @@ class ReceiptActivity : AppCompatActivity() {
                 }
 
             // display button for payer addition
-            addPayerButton = findViewById<Button>(R.id.add_payer_button)
+            addPayerButton = findViewById<FloatingActionButton>(R.id.add_payer_button)
             addPayerButton.setOnClickListener {
                 val intent = Intent(this, SearchBarActivity::class.java)
                 startActivity(intent)
@@ -142,11 +146,11 @@ class ReceiptActivity : AppCompatActivity() {
         } else if (receiptMode == Globals.RECEIPT_HISTORY_MODE) {
 
             // hide popups
-            adapterEntry.displayMode = Globals.HIDE_POPUP
+            adapterEntry.displayMode = Globals.HIDE_DROPDOWN
 
             // hide buttons
-            addPayerButton = findViewById<Button>(R.id.add_payer_button)
-            submitButton = findViewById<Button>(R.id.submit_receipt_button)
+            addPayerButton = findViewById<FloatingActionButton>(R.id.add_payer_button)
+            submitButton = findViewById<FloatingActionButton>(R.id.submit_receipt_button)
             addPayerButton.visibility = View.GONE
             submitButton.visibility = View.GONE
 
@@ -171,6 +175,14 @@ class ReceiptActivity : AppCompatActivity() {
             val titleEditText = findViewById<EditText>(R.id.receipt_title)
             titleEditText.setText(title)
         }
+
+//         for when user presses back, want to exit activity entirely
+//        backPressedCallback = object : OnBackPressedCallback(true) {
+//            override fun handleOnBackPressed() {
+//                finish()
+//            }
+//        }
+//        onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
 
     override fun onResume() {
@@ -269,7 +281,7 @@ class ReceiptActivity : AppCompatActivity() {
                 } else if (textType == Globals.ITEM_TYPE) {
                     itemList.add(line.text)
                 } else if (textType == Globals.QUANTITY_TYPE) {
-                    quantityList.add(line.text)
+                    quantityList.add(line.text.toFloat())
                 }
             }
         }
@@ -278,13 +290,27 @@ class ReceiptActivity : AppCompatActivity() {
         println("debug:$quantityList")
 
         if (priceList.size == itemList.size){
+            // if quantities were retrieved
             if (priceList.size == quantityList.size){
+                var newPriceList = arrayListOf<String>()
+                var newItemList = arrayListOf<String>()
+                // split up into multiple line items
                 for (i in 0 until priceList.size) {
                     val price = priceList[i]
-                    val quantityAndItem = quantityList[i] +" "+ itemList[i]
-                    receiptList.add(Pair(quantityAndItem, price))
+                    val item = itemList[i]
+                    val quantity = quantityList[i]
+                    for (j in 0 until quantity.toInt()) {
+                        val dividedPrice = price.toFloat().div(quantity)
+                        // round to 2 decimal places
+                        val dividedPriceString = String.format("%.2f", dividedPrice)
+                        newPriceList.add(dividedPriceString)
+                        newItemList.add(item)
+                        receiptList.add(Pair(item, dividedPriceString))
+                    }
                 }
-            } else{
+                priceList = newPriceList
+                itemList = newItemList
+            } else { // if quantities not retrieved
                 for (i in 0 until priceList.size) {
                     val price = priceList[i]
                     val item = itemList[i]
@@ -324,6 +350,9 @@ class ReceiptActivity : AppCompatActivity() {
         // get user-inputted title
         val titleEditText = findViewById<EditText>(R.id.receipt_title)
         title = titleEditText.text.toString()
+        if (title == "") {
+            title = "No title"
+        }
 
         // get current date
         val calendar = Calendar.getInstance()
@@ -381,7 +410,7 @@ class ReceiptActivity : AppCompatActivity() {
     }
 
     // helper function to save in firestore db for all payers
-    fun storeToFirestore(payers: Set<String>, receipt: Receipt) {
+    fun storeToFirestore(payers: List<String>, receipt: Receipt) {
         // do for each payer
         for (payer in payers) {
             // grab the user from firestore and modify their receipt history w this new receipt
