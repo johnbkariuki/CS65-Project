@@ -114,25 +114,6 @@ class ProfileActivity : AppCompatActivity() {
             loadView()
         }
 
-        // set onclick listeners
-        // logoutButton
-        /*
-        logoutButton = findViewById(R.id.logout_button)
-        logoutButton.setOnClickListener {
-            val editor: SharedPreferences.Editor = pref.edit()
-            editor.putString(SignUpActivity.EMAIL_KEY, "")
-            editor.putString(SignUpActivity.PASSWORD_KEY, "")
-            editor.putBoolean(Globals.LOGGED_IN_KEY,false)
-            editor.apply()
-
-            // logout
-            mFirebaseAuth.signOut()
-
-            val intent = Intent(this, SignInSignUpActivity::class.java)
-            startActivity(intent)
-        }
-         */
-
         // saveButton
         saveButton = findViewById(R.id.save_edit_button)
         saveButton.setOnClickListener {
