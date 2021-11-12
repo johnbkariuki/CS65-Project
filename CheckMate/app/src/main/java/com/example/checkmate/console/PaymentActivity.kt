@@ -27,6 +27,8 @@ class PaymentActivity: AppCompatActivity() {
         amountsList = serBundle?.getSerializable("amountsList") as ArrayList<Double>
         notesList = serBundle?.getSerializable("notesList") as ArrayList<String>
         idsList = serBundle?.getSerializable("idsList") as ArrayList<String>
+
+        println("debug: amountsList $amountsList")
     }
 
     fun onPaymentButtonClick(view: View) {

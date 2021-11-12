@@ -370,33 +370,41 @@ class ReceiptActivity : AppCompatActivity() {
                     var venmoId: String = ""
                     for(x in user) {
                         venmoId = x.data!!["venmo"].toString()
+                        println("debug: venmoid in loop $venmoId")
                     }
                     // Update amount to be paid in map
                     if(venmoId != "") {
                         if(map.containsKey(venmoId)) {
+                            println("debug: map contains key")
                             val currentAmount = map[venmoId]
                             if (currentAmount != null) {
                                 map[venmoId] = currentAmount + priceList[i].toDouble()
                             }
                         } else {
+                            println("debug: map does not contain key")
                             map[venmoId] = priceList[i].toDouble()
                         }
                     }
+                    // Send map to function to be called after DB fetches
+                    if(i >= payerList.size-1) {
+                        tempVenmoFunction(map)
+                    }
                 }
         }
+    }
 
+    fun tempVenmoFunction(map: MutableMap<String, Double>) {
         // List of requests' amounts, notes, ids
         val amountsList = arrayListOf<Double>()
         val notesList = arrayListOf<String>()
         val idsList = arrayListOf<String>()
-        val keySet = map.keys
-        val iterator = keySet.iterator()
-        while(iterator.hasNext()) {
-            val next = iterator.next()
-            idsList.add(next)
+        println("debug: above map keys")
+        println("debug: map keys ${map.keys}")
+        for(key in map.keys) {
+            idsList.add(key)
             notesList.add("CheckMate receipt")
-            amountsList.add(map[next]!!)
-            println("debug: receiptactivity $next ${map[next]!!}")
+            amountsList.add(map[key]!!)
+            println("debug: receiptactivity $key ${map[key]!!}")
         }
 
         // Pass the lists to PaymentActivity
@@ -405,6 +413,7 @@ class ReceiptActivity : AppCompatActivity() {
         bundle.putSerializable("amountsList", amountsList)
         bundle.putSerializable("notesList", notesList)
         bundle.putSerializable("idsList", idsList)
+        println("debug: amountsList $amountsList")
         intent.putExtras(bundle)
         startActivity(intent)
         finish()
