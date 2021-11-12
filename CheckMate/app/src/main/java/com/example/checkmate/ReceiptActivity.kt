@@ -361,26 +361,25 @@ class ReceiptActivity : AppCompatActivity() {
         println("debug: sendvenmorequests")
         // Map for final split: key is venmo id, value is amount to be requested
         val map: MutableMap<String, Double> = mutableMapOf()
-        for(i in 0..payerList.size-1) {
+        for(i in 0 until payerList.size) {
             println("debug: svr loop runs")
             // Get venmo id by username for each payer
             mFirebaseFirestore.collection("users")
-                .whereArrayContains("username", payerList[i]).get().addOnCompleteListener {
-                    val arr = mutableListOf<String>()
-                    for (doc in it.result.documents) {
-                        val venmoId = doc.data!!["venmo"].toString()
-                        println("debug: venmoid $venmoId")
-                        arr.add(venmoId)
+                .whereEqualTo("username", payerList[i]).get().addOnCompleteListener {
+                    val user = it.result.documents
+                    var venmoId: String = ""
+                    for(x in user) {
+                        venmoId = x.data!!["venmo"].toString()
                     }
                     // Update amount to be paid in map
-                    if(arr.size >= 1) {
-                        if(map.containsKey(arr[1])) {
-                            val currentAmount = map[arr[1]]
+                    if(venmoId != "") {
+                        if(map.containsKey(venmoId)) {
+                            val currentAmount = map[venmoId]
                             if (currentAmount != null) {
-                                map[arr[1]] = currentAmount + priceList[i].toDouble()
+                                map[venmoId] = currentAmount + priceList[i].toDouble()
                             }
                         } else {
-                            map[arr[1]] = priceList[i].toDouble()
+                            map[venmoId] = priceList[i].toDouble()
                         }
                     }
                 }
