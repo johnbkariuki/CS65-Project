@@ -22,6 +22,7 @@ class Globals {
         val PRICE_TYPE = "price type"  // for when processing text
         val QUANTITY_TYPE = "quantity type"
         val ITEM_TYPE = "item type "
+        val RECEIPT_SUBMISSION_FAILURE = "there is nothing to save"
 
         // search bar
         val ADDED_PAYERS_KEY = "add payers key"
