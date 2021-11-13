@@ -37,10 +37,10 @@
     <string name="used_email_error_message">That email is already in use. Please try using another one</string>
     <string name="receipt_scanning_error">There was an issue scanning your receipt please try again</string>
     <string name="profile_fragment_logout">Logout</string>
-    <string name="profile_fragment_save">SAVE</string>
+    <string name="profile_fragment_save">Done</string>
     <string name="search_hint">Enter username</string>
 
     <!-- profile activities -->
-    <string name="change_photo_button">Change</string>
+    <string name="change_photo_button">Change Profile Photo</string>
 
 </resources>

@@ -67,6 +67,7 @@ class UpdateProfileActivity:AppCompatActivity() {
         // saveButton
         saveBtn.setOnClickListener {
             update_info()
+            finish()
         }
         cancelBtn.setOnClickListener {
             finish()
