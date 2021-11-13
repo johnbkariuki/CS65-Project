@@ -2,18 +2,22 @@ package com.example.checkmate
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.provider.MediaStore
+import android.view.*
 import android.widget.AdapterView
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class HistoryFragment : Fragment() {
 
@@ -23,6 +27,9 @@ class HistoryFragment : Fragment() {
     private lateinit var listAdapter: HistoryListAdapter
     private lateinit var historyListView: ListView
     private lateinit var headerText: TextView
+    private lateinit var profileImage: ImageView
+    private lateinit var usernameText: TextView
+    private lateinit var venmoText: TextView
 
     // for accessing firebase
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -38,12 +45,17 @@ class HistoryFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_history, container, false)
 
         // set up database and view model
+        /*
         val database = ReceiptEntryDatabase.getInstance(requireActivity())
         val databaseDao = database.receiptEntryDatabaseDao
         val viewModelFactory = ReceiptEntryViewModelFactory(databaseDao)
         val receiptEntryViewModel = ViewModelProvider(this, viewModelFactory).get(ReceiptEntryViewModel::class.java)
+         */
 
         headerText = view.findViewById(R.id.historyHeader)
+        profileImage = view.findViewById(R.id.profile_image)
+        usernameText = view.findViewById(R.id.username_text)
+        venmoText = view.findViewById(R.id.venmo_text)
 
         // check if logged in
         val pref = requireActivity().getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
@@ -68,6 +80,9 @@ class HistoryFragment : Fragment() {
                 .addOnSuccessListener {
                     // get username
                     username = it.data!!["username"].toString()
+                    val venmo = it.data!!["venmo"].toString()
+                    usernameText.text = "Username: @$username"
+                    venmoText.text ="Venmo: @$venmo"
                     headerText.text = "Welcome, @$username! \nHere's a look at your payment history:"
 
                     // attaching list adapter
@@ -83,6 +98,11 @@ class HistoryFragment : Fragment() {
                         listAdapter.notifyDataSetChanged()
                     })
                      */
+
+                    FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
+                        Glide.with(this).load(it).into(profileImage)
+                    }
+                        .addOnFailureListener { Glide.with(this).load(R.drawable.default_image).into(profileImage) }
             
             mFirebaseFirestore.collection("users").document(mUserId).addSnapshotListener { value, error ->
                 val receipts = value!!.data!!["receipts"] as ArrayList<*>
