@@ -32,6 +32,8 @@ import java.lang.StringBuilder
 import com.google.firebase.database.DatabaseError
 
 import androidx.annotation.NonNull
+import androidx.fragment.app.FragmentManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ktx.getValue
@@ -126,6 +128,7 @@ class ProfileActivity : AppCompatActivity() {
                 storageReference.putFile(imageUri)
             }
             Toast.makeText(this, SAVED_MESSAGE, Toast.LENGTH_SHORT).show()
+            finish()
         }
 
         cancelButton = findViewById(R.id.cancel_button_profile)

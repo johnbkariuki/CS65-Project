@@ -1,8 +1,11 @@
 package com.example.checkmate
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
@@ -57,9 +60,14 @@ class UserRetrievedActivity : AppCompatActivity() {
                     usernameText.text = "Username: @$username"
                     venmoText.text = "Venmo: @$venmo"
                     headerText.text = "@$username's payment history:"
+
+                    listAdapter = HistoryListAdapter(this, historyList)
+                    listAdapter.username = username
+                    historyListView.adapter = listAdapter
                 }
 
-                mFirebaseFirestore.collection("users").document(mUserId).addSnapshotListener { value, error ->
+                mFirebaseFirestore.collection("users").document(mUserId)
+                    .addSnapshotListener { value, error ->
                     val receipts = value!!.data!!["receipts"] as ArrayList<*>
                     val historyListFirestore = ArrayList<ReceiptEntry>()
                     if (receipts.isNotEmpty()) {
@@ -79,16 +87,38 @@ class UserRetrievedActivity : AppCompatActivity() {
                             // add receipt entry to history list firestore
                             historyListFirestore.add(receiptEntry)
                         }
-                    }
 
-                    // notify dataset changed
-                    listAdapter.replace(historyListFirestore)
-                    listAdapter.notifyDataSetChanged()
+                        // notify dataset changed
+                        listAdapter.replace(historyListFirestore)
+                        listAdapter.notifyDataSetChanged()
+                    }
                 }
 
-                listAdapter = HistoryListAdapter(this, historyList)
-                listAdapter.username = username
-                historyListView.adapter = listAdapter
+                // check for if user clicks on item in history list
+                historyListView.setOnItemClickListener() { parent: AdapterView<*>, view: View, position: Int, id: Long ->
+                    val receiptEntry = listAdapter.getItem(position) as ReceiptEntry
+                    println("debug: entry #$position selected")
+
+                    // pass needed parameters to ReceiptActivity intent
+                    val intent = Intent(parent.context, ReceiptActivity::class.java)
+                    intent.putExtra(Globals.RECEIPT_TITLE_KEY, receiptEntry.title)
+                    intent.putExtra(
+                        Globals.RECEIPT_PRICELIST_KEY,
+                        Globals.Byte2ArrayList(receiptEntry.priceList)
+                    )
+                    intent.putExtra(
+                        Globals.RECEIPT_ITEMLIST_KEY,
+                        Globals.Byte2ArrayList(receiptEntry.itemList)
+                    )
+                    intent.putExtra(
+                        Globals.RECEIPT_PAYERLIST_KEY,
+                        Globals.Byte2ArrayList(receiptEntry.payerList)
+                    )
+
+                    // launch ReceiptActivity
+                    intent.putExtra(Globals.RECEIPT_MODE_KEY, Globals.RECEIPT_HISTORY_MODE)
+                    parent.context?.startActivity(intent)
+                }
             }
     }
 

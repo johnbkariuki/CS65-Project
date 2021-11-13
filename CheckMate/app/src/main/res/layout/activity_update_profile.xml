@@ -8,97 +8,110 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Update Your Information"
+        android:text="Update Your User Information"
+        android:textStyle="bold"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="60dp"
         android:gravity="center"
-        android:textSize="25dp">
+        android:textSize="25dp" />
 
-    </TextView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="15dp"
+        android:background="@color/black" />
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Username"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:textSize="15dp">
+        android:orientation="horizontal"
+        android:layout_margin="20dp" >
 
-    </TextView>
+        <TextView
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:text="Username"
+            android:textColor="@color/teal_700"
+            android:textSize="15sp" />
 
-    <EditText
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:layout_marginStart="20dp"
+            android:id="@+id/update_username_profile" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:id="@+id/update_username_profile"
-        />
+        android:orientation="horizontal"
+        android:layout_margin="20dp" >
 
-    <TextView
+        <TextView
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textColor="@color/teal_700"
+            android:textSize="15sp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:textSize="15sp"
+            android:id="@+id/update_email_profile" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Email"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:textSize="15dp">
+        android:orientation="horizontal"
+        android:layout_margin="20dp" >
 
-    </TextView>
+        <TextView
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:text="Password"
+            android:textColor="@color/teal_700"
+            android:textSize="15sp" />
 
-    <EditText
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:textSize="15sp"
+            android:id="@+id/update_password_profile" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:textSize="20sp"
-        android:id="@+id/update_email_profile"
-        />
+        android:orientation="horizontal"
+        android:layout_margin="20dp" >
 
-    <TextView
+        <TextView
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:text="Venmo"
+            android:textColor="@color/teal_700"
+            android:textSize="15sp">
+        </TextView>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:textSize="15sp"
+            android:id="@+id/update_venmo_profile" />
+    </LinearLayout>
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Password"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:textSize="15dp">
-
-    </TextView>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:textSize="20sp"
-        android:id="@+id/update_password_profile"
-        />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Venmo"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:textSize="15dp">
-    </TextView>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:textSize="20sp"
-        android:id="@+id/update_venmo_profile"
-        />
+        android:layout_height="1dp"
+        android:layout_marginTop="15dp"
+        android:background="@color/black" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -110,7 +123,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:id="@+id/update_profile_save_button"
+            android:backgroundTint="@color/white"
+            android:background="@android:color/transparent"
             android:text="@string/profile_fragment_save"
+            android:textColor="@color/teal_700"
             android:layout_margin="10dp"/>
 
         <Button
@@ -118,9 +134,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:id="@+id/update_profile_cancel_button"
+            android:backgroundTint="@color/white"
+            android:background="@android:color/transparent"
             android:layout_margin="10dp"
             android:text="@string/cancel" />
 
     </LinearLayout>
-
 </LinearLayout>
