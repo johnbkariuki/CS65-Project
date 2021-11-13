@@ -104,11 +104,6 @@ class  SearchBarActivity : AppCompatActivity() {
     }
 
     fun onSelectFriendsCLicked(view: View) {
-//        val intent = Intent(this, ReceiptActivity::class.java)
-//        val bundle = Bundle()
-//        bundle.putStringArrayList("users", selectedUsers)
-//        intent.putExtras(bundle)
-//        startActivity(intent)
 
         // ** Brandon revision
         val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)

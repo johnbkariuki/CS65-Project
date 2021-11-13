@@ -18,6 +18,7 @@
         <entry key="src/main/res/layout/layout_historylist_adapter.xml" value="0.1" />
         <entry key="src/main/res/layout/layout_receiptlist_adapter.xml" value="0.165" />
         <entry key="src/main/res/menu/bottom_nav.xml" value="0.10833333333333334" />
+        <entry key="src/main/res/menu/edit_profile.xml" value="0.10520833333333333" />
         <entry key="src/main/res/menu/menu_payment.xml" value="0.25" />
         <entry key="src/main/res/menu/popup_menu.xml" value="0.10833333333333334" />
       </map>
