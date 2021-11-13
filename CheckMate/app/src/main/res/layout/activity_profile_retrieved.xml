@@ -61,7 +61,7 @@
         android:textSize="18sp"
         android:layout_gravity="center_horizontal"
         android:id="@+id/historyHeader"
-        android:text="@string/history_header"/>
+        android:text="User's Payment History" />
 
     <ListView
         android:layout_width="match_parent"
