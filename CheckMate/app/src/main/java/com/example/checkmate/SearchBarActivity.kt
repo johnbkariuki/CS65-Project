@@ -74,8 +74,6 @@ class  SearchBarActivity : AppCompatActivity() {
                     })
             }
 
-
-
         selectedList = findViewById(R.id.selected_list)
         adapterSelected = SelectedPayersListAdapter(this, selectedUsers)
         selectedList.adapter = adapterSelected
@@ -98,22 +96,6 @@ class  SearchBarActivity : AppCompatActivity() {
         searchView.setOnQueryTextListener(object:SearchView.OnQueryTextListener {
             // add the user to the listview
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (!selectedUsers.contains(query)) {
-                    if (suggestions.contains(query)) {
-                        selectedUsers.add(query!!)
-
-                        // add to selected
-                        adapterSelected.notifyDataSetChanged()
-                    } else {
-                        val toastMessage = "User not found!"
-                        val toast = Toast.makeText(this@SearchBarActivity, toastMessage, Toast.LENGTH_SHORT).show()
-                    }
-                }
-                else {
-                    // make a toast
-                    val toastMessage = "This user has already been selected!"
-                    val toast = Toast.makeText(this@SearchBarActivity, toastMessage, Toast.LENGTH_SHORT).show()
-                }
                 return false
             }
 //
@@ -133,10 +115,25 @@ class  SearchBarActivity : AppCompatActivity() {
 //                hideKeyboard()
                 val cursor = searchView.suggestionsAdapter.getItem(position) as Cursor
                 val selected = cursor.getString(cursor.getColumnIndexOrThrow(SearchManager.SUGGEST_COLUMN_TEXT_1))
-                searchView.setQuery(selected, false)
+                searchView.setQuery(selected, true)
 
 //                val selected = parent.getItemAtPosition(position)
+                if (!selectedUsers.contains(selected)) {
+                    if (suggestions.contains(selected)) {
+                        selectedUsers.add(selected!!)
 
+                        // add to selected
+                        adapterSelected.notifyDataSetChanged()
+                    } else {
+                        val toastMessage = "User not found!"
+                        val toast = Toast.makeText(this@SearchBarActivity, toastMessage, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                else {
+                    // make a toast
+                    val toastMessage = "This user has already been selected!"
+                    val toast = Toast.makeText(this@SearchBarActivity, toastMessage, Toast.LENGTH_SHORT).show()
+                }
 
                 // Do something with selection
                 return true
