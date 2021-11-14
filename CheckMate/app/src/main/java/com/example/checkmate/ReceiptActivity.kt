@@ -20,6 +20,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.theartofdev.edmodo.cropper.CropImage
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.checkmate.console.PaymentActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -54,6 +55,9 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var mDatabase: DatabaseReference
     private lateinit var mFirebaseFirestore: FirebaseFirestore
     private lateinit var mCurrUser: FirebaseUser
+
+    // for venmo
+    private lateinit var mUsername: String
 
     // for saving receipt
     private lateinit var receiptEntry: ReceiptEntry
@@ -125,6 +129,12 @@ class ReceiptActivity : AppCompatActivity() {
             if (mFirebaseAuth.currentUser != null) {
                 mCurrUser = mFirebaseAuth.currentUser!!
                 mUserId = mCurrUser.uid
+
+                // Get username for venmo
+                mFirebaseFirestore.collection("users").document(mUserId).get()
+                    .addOnSuccessListener {
+                        mUsername = it.data!!["username"].toString()
+                    }
             }
 
             mFirebaseFirestore.collection("users").document(mUserId).get()
@@ -386,12 +396,73 @@ class ReceiptActivity : AppCompatActivity() {
         storeToFirebase(payers,payerList,title, date, mUserId, priceList, itemList)
     }
 
+    fun sendVenmoRequests() {
+        // Map for final split: key is venmo id, value is amount to be requested
+        val map: MutableMap<String, Double> = mutableMapOf()
+        for(i in 0 until payerList.size) {
+            // Get venmo id by username for each payer
+            mFirebaseFirestore.collection("users")
+                .whereEqualTo("username", payerList[i]).get().addOnCompleteListener {
+                    val user = it.result.documents
+                    var venmoId: String = ""
+                    for(x in user) {
+                        venmoId = x.data!!["venmo"].toString()
+                        println("debug: venmoid in loop $venmoId")
+                    }
+                    // Update amount to be paid in map
+                    if(venmoId != "" && payerList[i] != mUsername) {
+                        if(map.containsKey(venmoId)) {
+                            println("debug: map contains key")
+                            val currentAmount = map[venmoId]
+                            if (currentAmount != null) {
+                                map[venmoId] = currentAmount + priceList[i].toDouble()
+                            }
+                        } else {
+                            println("debug: map does not contain key")
+                            map[venmoId] = priceList[i].toDouble()
+                        }
+                    }
+                    // Send map to function to be called after DB fetches
+                    if(i >= payerList.size-1) {
+                        tempVenmoFunction(map)
+                    }
+                }
+        }
+    }
+
+    fun tempVenmoFunction(map: MutableMap<String, Double>) {
+        // List of requests' amounts, notes, ids
+        val amountsList = arrayListOf<Double>()
+        val notesList = arrayListOf<String>()
+        val idsList = arrayListOf<String>()
+        println("debug: above map keys")
+        println("debug: map keys ${map.keys}")
+        for(key in map.keys) {
+            idsList.add(key)
+            notesList.add("CheckMate receipt")
+            amountsList.add(map[key]!!)
+            println("debug: receiptactivity $key ${map[key]!!}")
+        }
+
+        // Pass the lists to PaymentActivity
+        val intent = Intent(this, PaymentActivity::class.java)
+        val bundle = Bundle()
+        bundle.putSerializable("amountsList", amountsList)
+        bundle.putSerializable("notesList", notesList)
+        bundle.putSerializable("idsList", idsList)
+        println("debug: amountsList $amountsList")
+        intent.putExtras(bundle)
+        startActivity(intent)
+        finish()
+    }
+
     // for when user submits receipt
     fun onSubmitReceipt(view: View) {
         if (receiptMode == Globals.RECEIPT_NEW_MODE) {
             // save receipt
             if(receiptList.isNotEmpty()){
                 saveReceiptEntry()
+                sendVenmoRequests()
 
                 // display toast and exit activity
                 Toast.makeText(this, Globals.RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()

@@ -41,6 +41,7 @@
     <string name="search_hint">Enter username</string>
 
     <!-- profile activities -->
+    <string name="update_venmo">Update Venmo ID</string>
     <string name="change_photo_button">Change Profile Photo</string>
 
 </resources>

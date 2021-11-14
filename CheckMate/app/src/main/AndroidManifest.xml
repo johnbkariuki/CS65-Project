@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="false"
@@ -37,8 +38,15 @@
         <activity android:name=".SearchBarActivity" android:screenOrientation="portrait"/>
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity" android:screenOrientation="portrait"/>
         <activity android:name=".UpdateProfileActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".console.CodeActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".console.LoginActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".console.PaymentActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".console.RequestActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".console.VenmoMainActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".VenmoAdapter" android:screenOrientation="portrait"/>
         <activity android:name=".UserLookupActivity" android:screenOrientation="portrait" />
         <activity android:name=".UserRetrievedActivity" android:screenOrientation="portrait" />
+
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
