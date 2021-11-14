@@ -1,5 +1,8 @@
 package com.example.checkmate
 
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
@@ -26,6 +29,7 @@ class Globals {
 
         // search bar
         val ADDED_PAYERS_KEY = "add payers key"
+        val FRIEND_SEARCH_HINT = "Search your friends!"
 
         // receiptEntryListAdapter
         val HIDE_DROPDOWN = "hide dropdown"
@@ -62,7 +66,7 @@ class Globals {
 
             return ois.readObject() as ArrayList<String>
         }
-    }
 
+    }
 
 }
