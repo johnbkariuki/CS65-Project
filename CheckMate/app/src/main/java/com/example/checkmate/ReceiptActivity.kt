@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.telephony.SmsManager
 import android.view.*
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
@@ -393,6 +394,7 @@ class ReceiptActivity : AppCompatActivity() {
             if(receiptList.isNotEmpty()){
                 saveReceiptEntry()
 
+
                 // display toast and exit activity
                 Toast.makeText(this, Globals.RECEIPT_SUBMITTED_TOAST, Toast.LENGTH_SHORT).show()
                 finish()
@@ -400,6 +402,29 @@ class ReceiptActivity : AppCompatActivity() {
                 Toast.makeText(this, Globals.RECEIPT_SUBMISSION_FAILURE, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun sendSMS(payersList: List<String>, priceList: List<String>, itemList: List<String>){
+        for (payer in payers) {
+            // grab the user from firestore and modify their receipt history w this new receipt
+            mFirebaseFirestore.collection("users").whereEqualTo("username", payer)
+                .get()
+                .addOnCompleteListener {
+                    println("completed!")
+                    val user = it.result.documents
+                    for (value in user) {
+                        val id = value.id
+                        println("added to: ${value}")
+                        mFirebaseFirestore.collection("users").document(id)
+                            .update("receipts", FieldValue.arrayUnion(receipt))
+                    }
+                }
+        }
+    }
+
+    fun sendSMSRequest(phoneNumber: String, sms_message: String){
+        val smsManager = SmsManager.getDefault()
+        smsManager.sendTextMessage(phoneNumber,null,sms_message,null,null)
     }
 
     // helper function to save in firestore db for all payers
