@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AlertDialog
@@ -20,10 +21,12 @@ import com.theartofdev.edmodo.cropper.CropImage
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.checkmate.console.PaymentActivity
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.lang.NumberFormatException
 import java.util.*
@@ -38,12 +41,12 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var receiptImage: InputImage
 
     // for UI
-    private lateinit var addPayerButton: Button
-    private lateinit var submitButton: Button
+    private lateinit var addPayerButton: FloatingActionButton
+    private lateinit var submitButton: FloatingActionButton
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, String>>()
     private lateinit var adapterEntry: ReceiptEntryListAdapter
-    private var payers = mutableSetOf<String>()  // payers in popup
+    private var payers = mutableListOf<String>()  // payers in popup
 
     // for firebase
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -63,8 +66,10 @@ class ReceiptActivity : AppCompatActivity() {
     private var payer = ""
     private var priceList = arrayListOf<String>()
     private var itemList = arrayListOf<String>()
-    private var quantityList = arrayListOf<String>()
+    private var quantityList = arrayListOf<Float>()
     private var payerList = arrayListOf<String>()  // index = receipt item row, value = payer
+
+    private lateinit var backPressedCallback: OnBackPressedCallback
 
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
         override fun createIntent(context: Context, input: Any?): Intent {
@@ -74,7 +79,12 @@ class ReceiptActivity : AppCompatActivity() {
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
-            return CropImage.getActivityResult(intent)?.uri
+            return if (resultCode == RESULT_OK){
+                CropImage.getActivityResult(intent)?.uri
+            } else{
+                finish()
+                null
+            }
         }
     }
 
@@ -137,7 +147,7 @@ class ReceiptActivity : AppCompatActivity() {
                 }
 
             // display button for payer addition
-            addPayerButton = findViewById<Button>(R.id.add_payer_button)
+            addPayerButton = findViewById<FloatingActionButton>(R.id.add_payer_button)
             addPayerButton.setOnClickListener {
                 val intent = Intent(this, SearchBarActivity::class.java)
                 startActivity(intent)
@@ -151,11 +161,11 @@ class ReceiptActivity : AppCompatActivity() {
         } else if (receiptMode == Globals.RECEIPT_HISTORY_MODE) {
 
             // hide popups
-            adapterEntry.displayMode = Globals.HIDE_POPUP
+            adapterEntry.displayMode = Globals.HIDE_DROPDOWN
 
             // hide buttons
-            addPayerButton = findViewById<Button>(R.id.add_payer_button)
-            submitButton = findViewById<Button>(R.id.submit_receipt_button)
+            addPayerButton = findViewById<FloatingActionButton>(R.id.add_payer_button)
+            submitButton = findViewById<FloatingActionButton>(R.id.submit_receipt_button)
             addPayerButton.visibility = View.GONE
             submitButton.visibility = View.GONE
 
@@ -278,7 +288,7 @@ class ReceiptActivity : AppCompatActivity() {
                 } else if (textType == Globals.ITEM_TYPE) {
                     itemList.add(line.text)
                 } else if (textType == Globals.QUANTITY_TYPE) {
-                    quantityList.add(line.text)
+                    quantityList.add(line.text.toFloat())
                 }
             }
         }
@@ -287,13 +297,27 @@ class ReceiptActivity : AppCompatActivity() {
         println("debug:$quantityList")
 
         if (priceList.size == itemList.size){
+            // if quantities were retrieved
             if (priceList.size == quantityList.size){
+                var newPriceList = arrayListOf<String>()
+                var newItemList = arrayListOf<String>()
+                // split up into multiple line items
                 for (i in 0 until priceList.size) {
                     val price = priceList[i]
-                    val quantityAndItem = quantityList[i] +" "+ itemList[i]
-                    receiptList.add(Pair(quantityAndItem, price))
+                    val item = itemList[i]
+                    val quantity = quantityList[i]
+                    for (j in 0 until quantity.toInt()) {
+                        val dividedPrice = price.toFloat().div(quantity)
+                        // round to 2 decimal places
+                        val dividedPriceString = String.format("%.2f", dividedPrice)
+                        newPriceList.add(dividedPriceString)
+                        newItemList.add(item)
+                        receiptList.add(Pair(item, dividedPriceString))
+                    }
                 }
-            } else{
+                priceList = newPriceList
+                itemList = newItemList
+            } else { // if quantities not retrieved
                 for (i in 0 until priceList.size) {
                     val price = priceList[i]
                     val item = itemList[i]
@@ -333,6 +357,9 @@ class ReceiptActivity : AppCompatActivity() {
         // get user-inputted title
         val titleEditText = findViewById<EditText>(R.id.receipt_title)
         title = titleEditText.text.toString()
+        if (title == "") {
+            title = "No title"
+        }
 
         // get current date
         val calendar = Calendar.getInstance()
@@ -364,6 +391,9 @@ class ReceiptActivity : AppCompatActivity() {
 
         // insert into database
         receiptEntryViewModel.insert(receiptEntry)
+
+        // save the receipt in firebase
+        storeToFirebase(payers,payerList,title, date, mUserId, priceList, itemList)
     }
 
     fun sendVenmoRequests() {
@@ -430,7 +460,6 @@ class ReceiptActivity : AppCompatActivity() {
     fun onSubmitReceipt(view: View) {
         if (receiptMode == Globals.RECEIPT_NEW_MODE) {
             // save receipt
-
             if(receiptList.isNotEmpty()){
                 saveReceiptEntry()
                 sendVenmoRequests()
@@ -441,6 +470,46 @@ class ReceiptActivity : AppCompatActivity() {
             }else{
                 Toast.makeText(this, Globals.RECEIPT_SUBMISSION_FAILURE, Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    // helper function to save in firestore db for all payers
+    fun storeToInfo(payers: List<String>, receipt: Receipt) {
+        // do for each payer
+        for (payer in payers) {
+            // grab the user from firestore and modify their receipt history w this new receipt
+            mFirebaseFirestore.collection("users").whereEqualTo("username", payer)
+                .get()
+                .addOnCompleteListener {
+                    println("completed!")
+                    val user = it.result.documents
+                    for (value in user) {
+                        val id = value.id
+                        println("added to: ${value}")
+                        mFirebaseFirestore.collection("users").document(id)
+                            .update("receipts", FieldValue.arrayUnion(receipt))
+                    }
+                }
+        }
+    }
+
+    fun storeToFirebase(payers: List<String>, payersList: List<String>, title: String, date: String, payer_id :String, priceList: List<String>, itemList: List<String>){
+        mFirebaseFirestore.collection("users").get().addOnSuccessListener {
+            val payersList_by_id = Array<String>(payersList.size){""}
+            val mutable_payersList_by_id = payersList_by_id.toMutableList()
+            for (document in it.documents){
+                for (index in 0 until payersList.size){
+                    if (payersList[index] == document.data?.get("username")){
+                        mutable_payersList_by_id[index] = document.id
+                    }
+                }
+            }
+            println("debug $mutable_payersList_by_id")
+
+            val receipt = Receipt(title, date, payer_id, priceList, itemList, mutable_payersList_by_id)
+            storeToInfo(payers,receipt)
+            if (!payers.contains(mUserId)) mFirebaseFirestore.collection("users").document(mUserId)
+                    .update("receipts", FieldValue.arrayUnion(receipt))
         }
     }
 }

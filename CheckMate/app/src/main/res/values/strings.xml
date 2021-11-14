@@ -13,6 +13,7 @@
     <string name="title_activity_receipt">PaymentActivity</string>
     <string name="receipt_title_hint">Your Title Here</string>
     <string name="add_payer_button">Add Payer</string>
+    <string name="select_payer_hint">Select Payer</string>
 
     <!--  history fragment  -->
     <string name="history_header">Your Payment History</string>
@@ -36,11 +37,11 @@
     <string name="used_email_error_message">That email is already in use. Please try using another one</string>
     <string name="receipt_scanning_error">There was an issue scanning your receipt please try again</string>
     <string name="profile_fragment_logout">Logout</string>
-    <string name="profile_fragment_save">SAVE</string>
+    <string name="profile_fragment_save">Done</string>
     <string name="search_hint">Enter username</string>
 
     <!-- profile activities -->
-    <string name="change_photo_button">Change</string>
     <string name="update_venmo">Update Venmo ID</string>
+    <string name="change_photo_button">Change Profile Photo</string>
 
 </resources>

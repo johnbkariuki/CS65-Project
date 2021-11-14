@@ -1,5 +1,8 @@
 package com.example.checkmate
 
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
@@ -26,10 +29,12 @@ class Globals {
 
         // search bar
         val ADDED_PAYERS_KEY = "add payers key"
+        val FRIEND_SEARCH_HINT = "Search your friends!"
 
         // receiptEntryListAdapter
-        val HIDE_POPUP = "hide popup"
-        val SHOW_POPUP = "show popup"
+        val HIDE_DROPDOWN = "hide dropdown"
+        val SHOW_DROPDOWN = "show dropdown"
+        val AMOUNT_PAID_ERROR = "Unable to Show Amount. Tap for more details"
 
         // profile, shared preferences
         val LOGGED_IN_KEY = "logged_in_key"
@@ -61,7 +66,7 @@ class Globals {
 
             return ois.readObject() as ArrayList<String>
         }
-    }
 
+    }
 
 }

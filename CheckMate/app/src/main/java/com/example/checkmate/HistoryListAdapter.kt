@@ -1,6 +1,8 @@
 package com.example.checkmate
 
 import android.content.Context
+import android.graphics.Color
+import android.text.Html
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -14,6 +16,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.io.ByteArrayInputStream
 import java.io.ObjectInputStream
 import java.lang.NumberFormatException
+import android.widget.TextView
+
+import android.text.Spannable
+
+import android.text.style.ForegroundColorSpan
+
+import android.text.SpannableString
+import android.text.Spanned
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
+
 
 // for formatting items in the receipt list
 class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntry>) : BaseAdapter(){
@@ -38,13 +51,17 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         // get ReceiptEntry object
         val receipt = historyList[position]
 
-        // get TextViews
+        // get TextViews, icons
+        val historyIcon = view.findViewById<ImageView>(R.id.history_icon)
         val amountPaidText = view.findViewById<TextView>(R.id.amount_paid)
         val receiptTitleText = view.findViewById<TextView>(R.id.receipt_title)
         val receiptDateText = view.findViewById<TextView>(R.id.receipt_date)
 
         // calculate amount user paid
         var amountPaid = 0.0
+        // total bill
+        var totalPaid = 0.0
+        val requestor = receipt.payer
         val translatedPayerList = Globals.Byte2ArrayList(receipt.payerList)
         val translatedPriceList = Globals.Byte2ArrayList(receipt.priceList)
 
@@ -58,23 +75,72 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
                 if (payer == username) {
                     amountPaid += price
                 }
+                totalPaid += price
             }
 
             // set textviews
-            amountPaidText.text = String.format("%.2f",-amountPaid) // round amount to two decimal places
+            // amountPaidText.text = String.format("%.2f",-amountPaid) // round amount to two decimal places
             receiptTitleText.text = receipt.title
             receiptDateText.text = receipt.date
 
-        }catch (e: NumberFormatException) {
+        } catch (e: NumberFormatException) {
             // set textviews
-            amountPaidText.text = "Unable to Show Amount. Tap for more details"
+            amountPaidText.text = Globals.AMOUNT_PAID_ERROR
             receiptTitleText.text = receipt.title
             receiptDateText.text = receipt.date
         }
 
-
+        // set textviews
+        if (!requestor.equals(username)) {
+            val amountPaidString = String.format("%.2f", amountPaid)
+            val totalPaidString = String.format("%.2f", totalPaid)
+            amountPaidText.text = Html.fromHtml("You paid @$requestor <font color='#FF160C'>$$amountPaidString</font> for a $$totalPaidString bill")
+            historyIcon.setBackgroundResource(R.drawable.ic_money_paid);
+        } else {
+            var payers = ""
+            val translatedPayerList = Globals.Byte2ArrayList(receipt.payerList)
+            val seenPayers = mutableSetOf<String>()
+            for (i in 0 until translatedPayerList.size) {
+                val payer = translatedPayerList[i]
+                // ignore own username
+                if (payer == username || seenPayers.contains(payer)) {
+                    continue
+                }
+                seenPayers.add(payer)
+                payers += "@$payer, "
+            }
+            if (payers.isEmpty()) {
+                historyIcon.setBackgroundResource(R.drawable.ic_money_paid);
+                val amountPaidString = String.format("%.2f", amountPaid)
+                amountPaidText.text = Html.fromHtml("You paid a <font color='#FF160C'>$$amountPaidString</font> bill")
+            } else {
+                historyIcon.setBackgroundResource(R.drawable.ic_money_received);
+                // get rid of ending space and comma
+                payers = payers.substring(0, payers.length - 2)
+                val amountReceivedString = String.format("%.2f", totalPaid - amountPaid)
+                val totalPaidString = String.format("%.2f", totalPaid)
+                amountPaidText.text = Html.fromHtml("$payers paid you <font color='#006400'>$$amountReceivedString</font> for a <font color='#FF160C'>$$totalPaidString</font> bill")
+            }
+        }
+        receiptTitleText.text = receipt.title
+        receiptDateText.text = receipt.date
 
         return view
+    }
+
+    fun getColoredString(string: String, color: Int): SpannableString? {
+        val spannableString = SpannableString(string)
+        for (i in 0 until string.length) {
+            if (Character.isDigit(string[i])) {
+                spannableString.setSpan(
+                    ForegroundColorSpan(color),
+                    i,
+                    i + 1,
+                    Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                )
+            }
+        }
+        return spannableString
     }
 
     fun replace(newHistoryList: List<ReceiptEntry>){

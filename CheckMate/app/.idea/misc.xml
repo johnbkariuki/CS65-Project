@@ -3,21 +3,31 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="src/main/res/drawable/bg_white_rounded.xml" value="0.12135416666666667" />
+        <entry key="src/main/res/drawable/ic_dropdown.xml" value="0.12447916666666667" />
+        <entry key="src/main/res/drawable/ic_money_paid.xml" value="0.12447916666666667" />
         <entry key="src/main/res/layout/activity_main.xml" value="0.10833333333333334" />
         <entry key="src/main/res/layout/activity_payment.xml" value="0.1" />
         <entry key="src/main/res/layout/activity_profile.xml" value="0.25" />
         <entry key="src/main/res/layout/activity_receipt.xml" value="0.22826086956521738" />
         <entry key="src/main/res/layout/activity_scanner.xml" value="0.10833333333333334" />
+        <entry key="src/main/res/layout/activity_search_bar.xml" value="0.25" />
         <entry key="src/main/res/layout/activity_signin_signup.xml" value="0.10833333333333334" />
         <entry key="src/main/res/layout/content_scrolling.xml" value="0.1" />
-        <entry key="src/main/res/layout/fragment_history.xml" value="0.25" />
+        <entry key="src/main/res/layout/fragment_history.xml" value="0.1" />
         <entry key="src/main/res/layout/fragment_payment.xml" value="0.165" />
         <entry key="src/main/res/layout/fragment_profile.xml" value="0.10833333333333334" />
         <entry key="src/main/res/layout/layout_historylist_adapter.xml" value="0.1" />
-        <entry key="src/main/res/layout/layout_receiptlist_adapter.xml" value="0.335" />
+        <entry key="src/main/res/layout/layout_receiptlist_adapter.xml" value="0.165" />
+        <entry key="src/main/res/layout/layout_search_suggestion.xml" value="0.10833333333333334" />
+        <entry key="src/main/res/layout/layout_selectedpayerslist_adapter.xml" value="0.45" />
+        <entry key="src/main/res/layout/user_lookup_adapter.xml" value="0.25" />
         <entry key="src/main/res/menu/bottom_nav.xml" value="0.10833333333333334" />
+        <entry key="src/main/res/menu/edit_profile.xml" value="0.10520833333333333" />
+        <entry key="src/main/res/menu/lookup_search.xml" value="0.25" />
         <entry key="src/main/res/menu/menu_payment.xml" value="0.25" />
         <entry key="src/main/res/menu/popup_menu.xml" value="0.10833333333333334" />
+        <entry key="src/main/res/menu/search_bar.xml" value="0.165" />
       </map>
     </option>
   </component>

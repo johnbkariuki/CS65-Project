@@ -8,4 +8,11 @@
         android:title="edit"
         app:showAsAction="always"
         />
+
+    <item
+        android:id="@+id/logout_profile_button"
+        android:icon="@drawable/ic_logout_icon"
+        android:title="logout"
+        app:showAsAction="always"
+        />
 </menu>

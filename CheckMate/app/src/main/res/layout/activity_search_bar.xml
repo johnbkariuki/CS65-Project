@@ -5,47 +5,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="2"
     tools:context=".SearchBarActivity" >
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:weightSum="2"
-        android:layout_weight="2"
-        android:orientation="vertical" >
+        <SearchView
+            android:layout_gravity="center_horizontal"
+            android:layout_width="350dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:theme="@style/AppSearchView"
+            android:id="@+id/user_search"
+            app:queryBackground="@drawable/bg_white_rounded"
+            app:submitBackground="@drawable/bg_white_rounded"
+            android:background="@drawable/bg_white_rounded"
+            />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="15dp"
-            android:text="Search Results: "/>
+            android:layout_marginTop="10dp"
+            android:text="Added Payers: "/>
         <ListView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
             android:layout_margin="15dp"
-            android:layout_weight="1"
-            android:id="@+id/searched_list" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:text="Selected Users: "/>
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_margin="15dp"
-            android:layout_weight="1"
             android:id="@+id/selected_list" />
-    </LinearLayout>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="15dp"
-        android:text="SEND TO THESE FRIENDS"
-        android:onClick="onSelectFriendsCLicked" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="15dp"
+            android:text="ADD THESE FRIENDS"
+            android:onClick="onSelectFriendsCLicked" />
+
 </LinearLayout>
