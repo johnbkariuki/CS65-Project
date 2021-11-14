@@ -9,11 +9,14 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.checkmate.console.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+
+var venmoUserSignUp = false
 
 class SignUpActivity: AppCompatActivity() {
     companion object {
@@ -21,7 +24,7 @@ class SignUpActivity: AppCompatActivity() {
         const val PASSWORD_KEY = "password"
     }
 
-    private lateinit var mainActivityIntent: Intent
+    private lateinit var venmoActivityIntent: Intent
     private lateinit var usernameText: EditText
     private lateinit var emailText: EditText
     private lateinit var passwordText: EditText
@@ -133,13 +136,17 @@ class SignUpActivity: AppCompatActivity() {
                         // apply changed and save to shared preferences
                         editor.apply()
 
-                        // launch main activity
-                        mainActivityIntent = Intent(this, MainActivity::class.java)
-                        startActivity(mainActivityIntent)
+                        // launch venmo registration activity
+                        venmoUserSignUp = true
+                        venmoActivityIntent = Intent(this, LoginActivity::class.java)
+                        startActivity(venmoActivityIntent)
 
                         // make a toast
                         val toast = Toast.makeText(this, TOAST_TEXT, Toast.LENGTH_LONG)
                         toast.show()
+
+                        // finish this activity
+                        finish()
                     }
 
                 } else {
