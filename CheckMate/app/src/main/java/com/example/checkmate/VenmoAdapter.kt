@@ -38,7 +38,12 @@ class VenmoAdapter: AppCompatActivity() {
         } else if(unsuccessful != null) {
             handleUnsuccessful(unsuccessful)
         }
-        startActivity(Intent(this, ProfileActivity::class.java))
+        if(venmoUserSignUp) {
+            startActivity(Intent(this, MainActivity::class.java))
+            venmoUserSignUp = false
+        } else {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
         finish()
     }
 
