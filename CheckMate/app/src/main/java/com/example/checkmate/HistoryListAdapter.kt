@@ -24,11 +24,8 @@ import android.text.style.ForegroundColorSpan
 
 import android.text.SpannableString
 import android.text.Spanned
-
-
-
-
-
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 
 
 // for formatting items in the receipt list
@@ -55,7 +52,7 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         val receipt = historyList[position]
 
         // get TextViews, icons
-        val historyIcon = view.findViewById<ImageButton>(R.id.history_icon)
+        val historyIcon = view.findViewById<ImageView>(R.id.history_icon)
         val amountPaidText = view.findViewById<TextView>(R.id.amount_paid)
         val receiptTitleText = view.findViewById<TextView>(R.id.receipt_title)
         val receiptDateText = view.findViewById<TextView>(R.id.receipt_date)
@@ -100,7 +97,6 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
             amountPaidText.text = Html.fromHtml("You paid @$requestor <font color='#FF160C'>$$amountPaidString</font> for a $$totalPaidString bill")
             historyIcon.setBackgroundResource(R.drawable.ic_money_paid);
         } else {
-            historyIcon.setBackgroundResource(R.drawable.ic_money_received);
             var payers = ""
             val translatedPayerList = Globals.Byte2ArrayList(receipt.payerList)
             val seenPayers = mutableSetOf<String>()
@@ -114,9 +110,11 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
                 payers += "@$payer, "
             }
             if (payers.isEmpty()) {
+                historyIcon.setBackgroundResource(R.drawable.ic_money_paid);
                 val amountPaidString = String.format("%.2f", amountPaid)
                 amountPaidText.text = Html.fromHtml("You paid a <font color='#FF160C'>$$amountPaidString</font> bill")
             } else {
+                historyIcon.setBackgroundResource(R.drawable.ic_money_received);
                 // get rid of ending space and comma
                 payers = payers.substring(0, payers.length - 2)
                 val amountReceivedString = String.format("%.2f", totalPaid - amountPaid)
