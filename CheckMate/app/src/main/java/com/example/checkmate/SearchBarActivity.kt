@@ -37,12 +37,15 @@ class  SearchBarActivity : AppCompatActivity() {
     // selected users
     private var selectedUsers = ArrayList<String>()
     private var suggestions = ArrayList<String>()
+    private lateinit var alreadyAddedUsers: ArrayList<String>
 
     private var payer = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_bar)
+
+        alreadyAddedUsers = intent.getStringArrayListExtra(Globals.EXISTING_PAYERS_KEY) as ArrayList<String>
 
         val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
         val email = pref.getString(SignUpActivity.EMAIL_KEY, "")!!
@@ -118,7 +121,7 @@ class  SearchBarActivity : AppCompatActivity() {
                 searchView.setQuery(selected, true)
 
 //                val selected = parent.getItemAtPosition(position)
-                if (!selectedUsers.contains(selected)) {
+                if (!selectedUsers.contains(selected) && !alreadyAddedUsers.contains(selected)) {
                     if (suggestions.contains(selected)) {
                         selectedUsers.add(selected!!)
 

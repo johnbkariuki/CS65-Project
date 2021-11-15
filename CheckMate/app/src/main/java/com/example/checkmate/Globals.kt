@@ -30,6 +30,7 @@ class Globals {
         // search bar
         val ADDED_PAYERS_KEY = "add payers key"
         val FRIEND_SEARCH_HINT = "Search your friends!"
+        val EXISTING_PAYERS_KEY = "existing payers key"
 
         // receiptEntryListAdapter
         val HIDE_DROPDOWN = "hide dropdown"

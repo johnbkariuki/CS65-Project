@@ -46,7 +46,7 @@ class ReceiptActivity : AppCompatActivity() {
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, String>>()
     private lateinit var adapterEntry: ReceiptEntryListAdapter
-    private var payers = mutableListOf<String>()  // payers in popup
+    private var payers = arrayListOf<String>()  // payers in popup
 
     // for firebase
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -150,6 +150,7 @@ class ReceiptActivity : AppCompatActivity() {
             addPayerButton = findViewById<FloatingActionButton>(R.id.add_payer_button)
             addPayerButton.setOnClickListener {
                 val intent = Intent(this, SearchBarActivity::class.java)
+                intent.putExtra(Globals.EXISTING_PAYERS_KEY, payers)
                 startActivity(intent)
             }
 
@@ -198,6 +199,7 @@ class ReceiptActivity : AppCompatActivity() {
         val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
         val addedPayersSet = pref.getStringSet(Globals.ADDED_PAYERS_KEY, null)
 
+
         // if resuming after user added new payers, add to set of payers for popups
         if (addedPayersSet != null) {
             for (user in addedPayersSet) {
@@ -205,7 +207,7 @@ class ReceiptActivity : AppCompatActivity() {
                 adapterEntry.payers = payers
                 adapterEntry.notifyDataSetChanged()
             }
-            // reset
+//             reset
             val editor = pref.edit()
             editor.remove(Globals.ADDED_PAYERS_KEY)
             editor.apply()

@@ -21,7 +21,7 @@ import android.widget.AdapterView
 class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<String, String>>) : BaseAdapter() {
 
     var displayMode = Globals.SHOW_DROPDOWN
-    var payers = mutableListOf<String>()
+    var payers = arrayListOf<String>()
 
     // key = row position, value = payer username
     val payersMapStore = mutableMapOf<Int, String>()
