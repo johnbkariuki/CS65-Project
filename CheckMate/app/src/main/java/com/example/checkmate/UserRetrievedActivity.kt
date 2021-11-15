@@ -18,14 +18,14 @@ import com.google.firebase.storage.FirebaseStorage
 class UserRetrievedActivity : AppCompatActivity() {
     // for displaying history list
     private var username = ""
-    private var venmo = ""
+    private var phone = ""
     private var historyList = listOf<ReceiptEntry>()
     private lateinit var listAdapter: HistoryListAdapter
     private lateinit var historyListView: ListView
     private lateinit var headerText: TextView
     private lateinit var profileImage: ImageView
     private lateinit var usernameText: TextView
-    private lateinit var venmoText: TextView
+    private lateinit var phoneText: TextView
 
     // for accessing firebase
     private lateinit var mUserId: String
@@ -41,7 +41,7 @@ class UserRetrievedActivity : AppCompatActivity() {
         headerText = findViewById(R.id.historyHeader)
         profileImage = findViewById(R.id.profile_image)
         usernameText = findViewById(R.id.username_text)
-        venmoText = findViewById(R.id.venmo_text)
+        phoneText = findViewById(R.id.phone_text)
         historyListView = findViewById(R.id.historyList)
 
         mFirebaseFirestore = FirebaseFirestore.getInstance()
@@ -63,10 +63,10 @@ class UserRetrievedActivity : AppCompatActivity() {
                             }
 
                         username = value.data!!["username"].toString()
-                        venmo = value.data!!["venmo"].toString()
+                        phone = value.data!!["phone"].toString()
 
                         usernameText.text = "Username: @$username"
-                        venmoText.text = "Venmo: @$venmo"
+                        phoneText.text = "Phone No. :$phone"
                         headerText.text = "@$username's payment history:"
 
                         listAdapter = HistoryListAdapter(this, historyList)

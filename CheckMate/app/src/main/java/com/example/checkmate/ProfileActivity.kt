@@ -48,7 +48,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var saveButton: Button
     private lateinit var usernameText: TextView
     private lateinit var emailText: TextView
-    private lateinit var venmoText: TextView
+    private lateinit var phoneText: TextView
     private lateinit var imageView: ImageView
     private lateinit var takePhotoButton: Button
     private lateinit var cancelButton: Button
@@ -133,7 +133,11 @@ class ProfileActivity : AppCompatActivity() {
                 storageReference.putFile(imageUri)
             }
             Toast.makeText(this, SAVED_MESSAGE, Toast.LENGTH_SHORT).show()
-            finish()
+
+            // do not uncomment :)
+            // if we finish while firebase is still saving the new image it doesn't refresh properly on the
+            // history page
+            //finish()
         }
 
         cancelButton = findViewById(R.id.cancel_button_profile)
@@ -171,7 +175,7 @@ class ProfileActivity : AppCompatActivity() {
 
                 // println("debug: $it") // debugging purposes
                 usernameText.text = it.data!!["username"].toString()
-                venmoText.text = it.data!!["venmo"].toString()
+                phoneText.text = it.data!!["phone"].toString()
             }
     }
 
@@ -181,7 +185,7 @@ class ProfileActivity : AppCompatActivity() {
         // get view components
         emailText = findViewById(R.id.email_profile)
         usernameText = findViewById(R.id.username_profile)
-        venmoText = findViewById(R.id.venmo_profile)
+        phoneText = findViewById(R.id.phone_profile)
 
         emailText.text = email
 
@@ -191,7 +195,7 @@ class ProfileActivity : AppCompatActivity() {
 
                 // println("debug: $it") // debugging purposes
                 usernameText.text = it.data!!["username"].toString()
-                venmoText.text = it.data!!["venmo"].toString()
+                phoneText.text = it.data!!["phone"].toString()
             }
 
         FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {

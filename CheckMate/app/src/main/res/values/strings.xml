@@ -25,6 +25,7 @@
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="Venmo">Venmo</string>
+    <string name="phone_number">Phone Number</string>
     <string name="cancel">Cancel</string>
     <string name="signup_error_message">Make sure you don\'t leave anything blank!</string>
     <string name="signup_error_message2">Make sure your password is more than 6 characters long!</string>
