@@ -11,6 +11,7 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
@@ -44,82 +45,112 @@ class UserRetrievedActivity : AppCompatActivity() {
         historyListView = findViewById(R.id.historyList)
 
         mFirebaseFirestore = FirebaseFirestore.getInstance()
-        mFirebaseFirestore.collection("users").whereEqualTo("username", username).get()
-            .addOnCompleteListener {
-                for (value in it.result.documents) {
-                    mUserId = value.id
+        mFirebaseFirestore.collection("users").get().addOnSuccessListener { all_data ->
+            mFirebaseFirestore.collection("users").whereEqualTo("username", username).get()
+                .addOnCompleteListener {
+                    for (value in it.result.documents) {
+                        mUserId = value.id
 
-                    FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
-                        Glide.with(this).load(it).into(profileImage)
+                        FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
+                            Glide.with(this).load(it)
+                                .signature(ObjectKey(System.currentTimeMillis().toString()))
+                                .into(profileImage)
+                        }
+                            .addOnFailureListener {
+                                Glide.with(this).load(R.drawable.default_image)
+                                    .signature(ObjectKey(System.currentTimeMillis().toString()))
+                                    .into(profileImage)
+                            }
+
+                        username = value.data!!["username"].toString()
+                        venmo = value.data!!["venmo"].toString()
+
+                        usernameText.text = "Username: @$username"
+                        venmoText.text = "Venmo: @$venmo"
+                        headerText.text = "@$username's payment history:"
+
+                        listAdapter = HistoryListAdapter(this, historyList)
+                        listAdapter.username = username
+                        historyListView.adapter = listAdapter
                     }
-                        .addOnFailureListener { Glide.with(this).load(R.drawable.default_image).into(profileImage) }
 
-                    username = value.data!!["username"].toString()
-                    venmo = value.data!!["venmo"].toString()
+                    mFirebaseFirestore.collection("users").document(mUserId)
+                        .addSnapshotListener { value, error ->
+                            val receipts = value!!.data!!["receipts"] as ArrayList<*>
+                            val historyListFirestore = ArrayList<ReceiptEntry>()
+                            if (receipts.isNotEmpty()) {
+                                for (receipt in receipts) {
+                                    val receiptObj = receipt as HashMap<*, *>
+                                    val receiptEntry = ReceiptEntry()
+                                    receiptEntry.date = receiptObj["date"].toString()
+                                    receiptEntry.itemList =
+                                        Globals.ArrayList2Byte(receiptObj["itemList"] as ArrayList<String>)
 
-                    usernameText.text = "Username: @$username"
-                    venmoText.text = "Venmo: @$venmo"
-                    headerText.text = "@$username's payment history:"
+                                    var payer = ""
+                                    val payer_by_id = receiptObj["payer"].toString()
 
-                    listAdapter = HistoryListAdapter(this, historyList)
-                    listAdapter.username = username
-                    historyListView.adapter = listAdapter
-                }
+                                    val payersList_by_id =
+                                        receiptObj["payerList"] as ArrayList<String>
+                                    val payersList = Array<String>(payersList_by_id.size) { "" }
+                                    val mutable_payersList = payersList.toMutableList()
 
-                mFirebaseFirestore.collection("users").document(mUserId)
-                    .addSnapshotListener { value, error ->
-                    val receipts = value!!.data!!["receipts"] as ArrayList<*>
-                    val historyListFirestore = ArrayList<ReceiptEntry>()
-                    if (receipts.isNotEmpty()) {
-                        for (receipt in receipts) {
-                            val receiptObj = receipt as HashMap<*, *>
-                            val receiptEntry = ReceiptEntry()
-                            receiptEntry.date = receiptObj["date"].toString()
-                            receiptEntry.itemList =
-                                Globals.ArrayList2Byte(receiptObj["itemList"] as ArrayList<String>)
-                            receiptEntry.payer = receiptObj["payer"].toString()
-                            receiptEntry.payerList =
-                                Globals.ArrayList2Byte(receiptObj["payerList"] as ArrayList<String>)
-                            receiptEntry.priceList =
-                                Globals.ArrayList2Byte(receiptObj["priceList"] as ArrayList<String>)
-                            receiptEntry.title = receiptObj["title"].toString()
+                                    for (document in all_data.documents) {
+                                        if (payer_by_id == document.id) {
+                                            payer = document.data?.get("username") as String
+                                        }
 
-                            // add receipt entry to history list firestore
-                            historyListFirestore.add(receiptEntry)
+                                        for (index in 0 until payersList_by_id.size) {
+                                            if (payersList_by_id[index] == document.id) {
+                                                mutable_payersList[index] =
+                                                    document.data?.get("username") as String
+                                            }
+                                        }
+                                    }
+
+                                    receiptEntry.payer = payer
+                                    receiptEntry.payerList =
+                                        Globals.ArrayList2Byte(mutable_payersList as ArrayList<String>)
+                                    receiptEntry.priceList =
+                                        Globals.ArrayList2Byte(receiptObj["priceList"] as ArrayList<String>)
+                                    receiptEntry.title = receiptObj["title"].toString()
+
+                                    // add receipt entry to history list firestore
+                                    historyListFirestore.add(receiptEntry)
+                                }
+
+                                // notify dataset changed
+                                listAdapter.replace(historyListFirestore)
+                                listAdapter.notifyDataSetChanged()
+                            }
                         }
 
-                        // notify dataset changed
-                        listAdapter.replace(historyListFirestore)
-                        listAdapter.notifyDataSetChanged()
+                    // check for if user clicks on item in history list
+                    historyListView.setOnItemClickListener() { parent: AdapterView<*>, view: View, position: Int, id: Long ->
+                        val receiptEntry = listAdapter.getItem(position) as ReceiptEntry
+                        println("debug: entry #$position selected")
+
+                        // pass needed parameters to ReceiptActivity intent
+                        val intent = Intent(parent.context, ReceiptActivity::class.java)
+                        intent.putExtra(Globals.RECEIPT_TITLE_KEY, receiptEntry.title)
+                        intent.putExtra(
+                            Globals.RECEIPT_PRICELIST_KEY,
+                            Globals.Byte2ArrayList(receiptEntry.priceList)
+                        )
+                        intent.putExtra(
+                            Globals.RECEIPT_ITEMLIST_KEY,
+                            Globals.Byte2ArrayList(receiptEntry.itemList)
+                        )
+                        intent.putExtra(
+                            Globals.RECEIPT_PAYERLIST_KEY,
+                            Globals.Byte2ArrayList(receiptEntry.payerList)
+                        )
+
+                        // launch ReceiptActivity
+                        intent.putExtra(Globals.RECEIPT_MODE_KEY, Globals.RECEIPT_HISTORY_MODE)
+                        parent.context?.startActivity(intent)
                     }
                 }
-
-                // check for if user clicks on item in history list
-                historyListView.setOnItemClickListener() { parent: AdapterView<*>, view: View, position: Int, id: Long ->
-                    val receiptEntry = listAdapter.getItem(position) as ReceiptEntry
-                    println("debug: entry #$position selected")
-
-                    // pass needed parameters to ReceiptActivity intent
-                    val intent = Intent(parent.context, ReceiptActivity::class.java)
-                    intent.putExtra(Globals.RECEIPT_TITLE_KEY, receiptEntry.title)
-                    intent.putExtra(
-                        Globals.RECEIPT_PRICELIST_KEY,
-                        Globals.Byte2ArrayList(receiptEntry.priceList)
-                    )
-                    intent.putExtra(
-                        Globals.RECEIPT_ITEMLIST_KEY,
-                        Globals.Byte2ArrayList(receiptEntry.itemList)
-                    )
-                    intent.putExtra(
-                        Globals.RECEIPT_PAYERLIST_KEY,
-                        Globals.Byte2ArrayList(receiptEntry.payerList)
-                    )
-
-                    // launch ReceiptActivity
-                    intent.putExtra(Globals.RECEIPT_MODE_KEY, Globals.RECEIPT_HISTORY_MODE)
-                    parent.context?.startActivity(intent)
-                }
-            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
