@@ -95,7 +95,7 @@
         <TextView
             android:layout_width="75dp"
             android:layout_height="wrap_content"
-            android:text="Venmo"
+            android:text="Phone No."
             android:textColor="@color/teal_700"
             android:textSize="15sp">
         </TextView>
@@ -104,10 +104,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
+            android:inputType="phone"
             android:textSize="15sp"
-            android:editable="false"
-            android:id="@+id/update_venmo_profile" />
+            android:id="@+id/update_phone_profile" />
     </LinearLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

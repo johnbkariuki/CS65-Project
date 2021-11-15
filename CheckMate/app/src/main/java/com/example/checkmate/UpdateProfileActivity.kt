@@ -19,7 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class UpdateProfileActivity:AppCompatActivity() {
     private lateinit var usernameText: EditText
     private lateinit var emailText: EditText
-    private lateinit var venmoText: EditText
+    private lateinit var phoneText: EditText
     private lateinit var passwordText: EditText
     private lateinit var saveBtn: Button
     private lateinit var cancelBtn: Button
@@ -41,7 +41,7 @@ class UpdateProfileActivity:AppCompatActivity() {
 
         usernameText = findViewById<EditText>(R.id.update_username_profile)
         emailText = findViewById<EditText>(R.id.update_email_profile)
-        venmoText = findViewById<EditText>(R.id.update_venmo_profile)
+        phoneText = findViewById<EditText>(R.id.update_phone_profile)
         passwordText = findViewById<EditText>(R.id.update_password_profile)
         saveBtn = findViewById<Button>(R.id.update_profile_save_button)
         cancelBtn = findViewById<Button>(R.id.update_profile_cancel_button)
@@ -79,14 +79,14 @@ class UpdateProfileActivity:AppCompatActivity() {
 
     private fun update_info(){
 
-        if(emailText.text.isNotEmpty() && usernameText.text.isNotEmpty() && venmoText.text.isNotEmpty() && passwordText.text.isNotEmpty()) {
+        if(emailText.text.isNotEmpty() && usernameText.text.isNotEmpty() && phoneText.text.isNotEmpty() && passwordText.text.isNotEmpty()) {
 
             databaseReference.child(mUserId).child("user").child("email")
                 .setValue(emailText.text.toString())
             databaseReference.child(mUserId).child("user").child("username")
                 .setValue(usernameText.text.toString())
-            databaseReference.child(mUserId).child("user").child("venmo")
-                .setValue(venmoText.text.toString())
+            databaseReference.child(mUserId).child("user").child("phone")
+                .setValue(phoneText.text.toString())
             databaseReference.child(mUserId).child("user").child("password")
                 .setValue(passwordText.text.toString())
 
@@ -95,7 +95,7 @@ class UpdateProfileActivity:AppCompatActivity() {
                     "email" to emailText.text.toString(),
                     "password" to passwordText.text.toString(),
                     "username" to usernameText.text.toString(),
-                    "venmo" to venmoText.text.toString(),
+                    "phone" to phoneText.text.toString(),
                     "keywords" to generateKeywords(usernameText.text.toString())
                 )
             )
@@ -135,7 +135,7 @@ class UpdateProfileActivity:AppCompatActivity() {
 
                 // println("debug: $it") // debugging purposes
                 usernameText.setText(it.data!!["username"].toString())
-                venmoText.setText(it.data!!["venmo"].toString())
+                phoneText.setText(it.data!!["phone"].toString())
             }
     }
 

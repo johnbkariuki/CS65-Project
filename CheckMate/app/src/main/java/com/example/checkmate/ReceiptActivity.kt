@@ -1,10 +1,14 @@
 package com.example.checkmate
 
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.telephony.SmsManager
 import android.view.*
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
@@ -28,6 +32,10 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.lang.NumberFormatException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -43,6 +51,8 @@ class ReceiptActivity : AppCompatActivity() {
     // for UI
     private lateinit var addPayerButton: FloatingActionButton
     private lateinit var submitButton: FloatingActionButton
+    private lateinit var sendVenmoButton: FloatingActionButton
+    private lateinit var sendTextButton: FloatingActionButton
     private lateinit var receiptListView: ListView
     private var receiptList = ArrayList<Pair<String, String>>()
     private lateinit var adapterEntry: ReceiptEntryListAdapter
@@ -70,6 +80,8 @@ class ReceiptActivity : AppCompatActivity() {
     private var payerList = arrayListOf<String>()  // index = receipt item row, value = payer
 
     private lateinit var backPressedCallback: OnBackPressedCallback
+
+    private var clicked = false
 
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
         override fun createIntent(context: Context, input: Any?): Intent {
@@ -167,8 +179,12 @@ class ReceiptActivity : AppCompatActivity() {
             // hide buttons
             addPayerButton = findViewById<FloatingActionButton>(R.id.add_payer_button)
             submitButton = findViewById<FloatingActionButton>(R.id.submit_receipt_button)
+            sendTextButton = findViewById<FloatingActionButton>(R.id.send_text)
+            sendVenmoButton = findViewById<FloatingActionButton>(R.id.send_venmo)
             addPayerButton.visibility = View.GONE
             submitButton.visibility = View.GONE
+            sendTextButton.visibility = View.GONE
+            sendVenmoButton.visibility = View.GONE
 
             // get receipt object fields
             title = intent.getStringExtra(Globals.RECEIPT_TITLE_KEY)!!
@@ -460,8 +476,37 @@ class ReceiptActivity : AppCompatActivity() {
 
     // for when user submits receipt
     fun onSubmitReceipt(view: View) {
+        change_button_icon(clicked)
+        setVisibility(clicked)
+        clicked = !clicked
+    }
+
+    fun setVisibility(clicked: Boolean){
+        sendTextButton = findViewById<FloatingActionButton>(R.id.send_text)
+        sendVenmoButton = findViewById<FloatingActionButton>(R.id.send_venmo)
+
+        if(!clicked){
+            sendVenmoButton.visibility = View.VISIBLE
+            sendTextButton.visibility = View.VISIBLE
+        } else{
+            sendVenmoButton.visibility = View.GONE
+            sendTextButton.visibility = View.GONE
+        }
+    }
+
+    fun change_button_icon(clicked: Boolean){
+        submitButton = findViewById<FloatingActionButton>(R.id.submit_receipt_button)
+        if(!clicked){
+            submitButton.setImageResource(R.drawable.ic_cancel_send)
+        } else{
+            submitButton.setImageResource(R.drawable.ic_submit)
+        }
+    }
+
+    fun onSendVenmoPressed(view: View){
         if (receiptMode == Globals.RECEIPT_NEW_MODE) {
             // save receipt
+
             if(receiptList.isNotEmpty()){
                 saveReceiptEntry()
                 sendVenmoRequests()
@@ -473,6 +518,101 @@ class ReceiptActivity : AppCompatActivity() {
                 Toast.makeText(this, Globals.RECEIPT_SUBMISSION_FAILURE, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun onSendTextPressed(view: View){
+        if (receiptMode == Globals.RECEIPT_NEW_MODE) {
+            // save receipt
+            if(receiptList.isNotEmpty()){
+                saveReceiptEntry()
+                sendSMS(payer,payerList,priceList,itemList)
+
+                // display toast and exit activity
+                finish()
+            }else{
+                Toast.makeText(this, Globals.RECEIPT_SUBMISSION_FAILURE, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun sendSMS(requestor: String, payersList: List<String>, priceList: List<String>, itemList: List<String>){
+
+        for (index in payersList.indices) {
+            // grab the user from firestore and modify their receipt history w this new receipt
+            mFirebaseFirestore.collection("users").whereEqualTo("username", payersList[index])
+                .get()
+                .addOnCompleteListener {
+                    println("completed!")
+                    val user = it.result.documents
+                    for (value in user) {
+                        println("added to: ${value.get("phone")}")
+                        val sms_message = "$requestor is reminding you to send ${priceList[index]} for ${itemList[index]}. For more information please visit the CheckMate App"
+                        val number = value.get("phone") as String
+                        println("number:$number")
+                        sendSMSRequest(number, sms_message)
+                    }
+                }
+        }
+    }
+
+    // the below code was sourced from https://stackoverflow.com/questions/18828455/android-sms-manager-not-sending-sms
+    // our own edits were made
+    fun sendSMSRequest(phoneNumber: String, sms_message: String){
+        val SENT = "SMS_SENT"
+        val DELIVERED = "SMS_DELIVERED"
+
+        val sentPI = PendingIntent.getBroadcast(this, 0, Intent(SENT), 0)
+        val deliveredPI = PendingIntent.getBroadcast(this, 0, Intent(DELIVERED), 0)
+
+        //---when the SMS has been sent---
+        registerReceiver(object : BroadcastReceiver() {
+            override fun onReceive(arg0: Context, arg1: Intent) {
+                when (resultCode) {
+                    RESULT_OK -> Toast.makeText(
+                        baseContext, "SMS sent",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    SmsManager.RESULT_ERROR_GENERIC_FAILURE -> Toast.makeText(
+                        baseContext, "Generic failure",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    SmsManager.RESULT_ERROR_NO_SERVICE -> Toast.makeText(
+                        baseContext, "No service",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    SmsManager.RESULT_ERROR_NULL_PDU -> Toast.makeText(
+                        baseContext, "Null PDU",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    SmsManager.RESULT_ERROR_RADIO_OFF -> Toast.makeText(
+                        baseContext, "Radio off",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    SmsManager.RESULT_INVALID_ARGUMENTS -> Toast.makeText(
+                        baseContext, "Invalid Arguments",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }, IntentFilter(SENT))
+
+        //---when the SMS has been delivered---
+        registerReceiver(object : BroadcastReceiver() {
+            override fun onReceive(arg0: Context, arg1: Intent) {
+                when (resultCode) {
+                    RESULT_OK -> Toast.makeText(
+                        baseContext, "SMS delivered",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    RESULT_CANCELED -> Toast.makeText(
+                        baseContext, "SMS not delivered",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }, IntentFilter(DELIVERED))
+        val smsManager = SmsManager.getDefault()
+        smsManager.sendTextMessage(phoneNumber,null,sms_message,sentPI,deliveredPI)
     }
 
     // helper function to save in firestore db for all payers
@@ -506,7 +646,7 @@ class ReceiptActivity : AppCompatActivity() {
                     }
                 }
             }
-            println("debug $mutable_payersList_by_id")
+            println("debug1 $mutable_payersList_by_id")
 
             val receipt = Receipt(title, date, payer_id, priceList, itemList, mutable_payersList_by_id)
             storeToInfo(payers,receipt)

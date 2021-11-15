@@ -72,21 +72,21 @@
             android:layout_gravity="center" />
 
         <TextView
-            android:id="@+id/venmo"
+            android:id="@+id/phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="@string/Venmo"
+            android:text="@string/phone_number"
             android:layout_gravity="center" />
 
         <EditText
-            android:id="@+id/venmo_edittext"
+            android:id="@+id/phone_edittext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:inputType="textPersonName"
+            android:inputType="phone"
             android:layout_gravity="center"
-            android:hint="Who's getting paid?"
+            android:hint="What's your phone no.?"
             android:layout_marginBottom="40dp"/>
 
         <LinearLayout
