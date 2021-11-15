@@ -45,6 +45,7 @@ class  SearchBarActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_bar)
 
+        // users already in the drop-down in receipt
         alreadyAddedUsers = intent.getStringArrayListExtra(Globals.EXISTING_PAYERS_KEY) as ArrayList<String>
 
         val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
@@ -80,6 +81,7 @@ class  SearchBarActivity : AppCompatActivity() {
         selectedList = findViewById(R.id.selected_list)
         adapterSelected = SelectedPayersListAdapter(this, selectedUsers)
         selectedList.adapter = adapterSelected
+        // if payer is deleted
         adapterSelected.deletedUser.observe(this, Observer { it ->
             if (selectedUsers.contains(it)) {
                 selectedUsers.remove(it)
@@ -114,17 +116,16 @@ class  SearchBarActivity : AppCompatActivity() {
                 return false
             }
 
+            // when user clicks on dropdown suggeestion
             override fun onSuggestionClick(position: Int): Boolean {
-//                hideKeyboard()
                 val cursor = searchView.suggestionsAdapter.getItem(position) as Cursor
                 val selected = cursor.getString(cursor.getColumnIndexOrThrow(SearchManager.SUGGEST_COLUMN_TEXT_1))
                 searchView.setQuery(selected, true)
 
-//                val selected = parent.getItemAtPosition(position)
+                // add user as potential payer
                 if (!selectedUsers.contains(selected) && !alreadyAddedUsers.contains(selected)) {
                     if (suggestions.contains(selected)) {
                         selectedUsers.add(selected!!)
-
                         // add to selected
                         adapterSelected.notifyDataSetChanged()
                     } else {
@@ -142,9 +143,9 @@ class  SearchBarActivity : AppCompatActivity() {
                 return true
             }
         })
-
     }
 
+    // update suggestions dropdown based on user query
     private fun getUsersByUsername(query: String) {
         val cursor = MatrixCursor(arrayOf(BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1))
         query?.let {
@@ -158,23 +159,12 @@ class  SearchBarActivity : AppCompatActivity() {
         cursorAdapter.changeCursor(cursor)
     }
 
-    fun onSelectFriendsCLicked(view: View) {
-
-        val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
-        val editor = pref.edit()
-
-        val selectedUsersSet: Set<String> = selectedUsers.toSet()
-        editor.putStringSet(Globals.ADDED_PAYERS_KEY, selectedUsersSet)
-        editor.apply()
-
-        finish()
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_bar, menu)
         return true
     }
 
+    // if user presses submit, store data in preferences and finish activity
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
         val editor = pref.edit()
