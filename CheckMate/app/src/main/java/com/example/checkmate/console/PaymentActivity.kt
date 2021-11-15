@@ -47,6 +47,7 @@ class PaymentActivity: AppCompatActivity() {
         val bundle = Bundle()
         bundle.putString("username", username)
         bundle.putString("password", password)
+        bundle.putBoolean("fromLogin", false)
 
         // Request lists
         bundle.putSerializable("amountsList", amountsList)
@@ -54,13 +55,15 @@ class PaymentActivity: AppCompatActivity() {
         bundle.putSerializable("idsList", idsList)
 
         intent.putExtras(bundle)
-        Python.start(AndroidPlatform(applicationContext))
+
+        if(!Python.isStarted()) {
+            Python.start(AndroidPlatform(applicationContext))
+        }
         startActivity(intent)
         finish()
     }
 
     fun onPaymentBackClick(view: View) {
-        startActivity(Intent(this, ReceiptActivity::class.java))
         finish()
     }
 

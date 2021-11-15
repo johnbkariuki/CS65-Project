@@ -1,9 +1,10 @@
 package com.example.checkmate.console;
 
 import android.app.Application;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
+import com.chaquo.python.PyException;
 import com.example.checkmate.utils.PythonConsoleActivity;
 
 import java.util.ArrayList;
@@ -13,6 +14,9 @@ public class RequestActivity extends PythonConsoleActivity {
 
     protected static String username;
     protected static String password;
+    protected static ArrayList<Double> amountsList;
+    protected static ArrayList<String> notesList;
+    protected static ArrayList<String> idsList;
     protected static String amountsStr;
     protected static String notesStr;
     protected static String idsStr;
@@ -23,11 +27,11 @@ public class RequestActivity extends PythonConsoleActivity {
         Bundle b = getIntent().getExtras();
         username = b.getString("username");
         password = b.getString("password");
-        ArrayList<Double> amountsList = (ArrayList<Double>) b.getSerializable("amountsList");
+        amountsList = (ArrayList<Double>) b.getSerializable("amountsList");
         Log.d("debug amountsList", amountsList.toString());
-        ArrayList<String> notesList = (ArrayList<String>) b.getSerializable("notesList");
+        notesList = (ArrayList<String>) b.getSerializable("notesList");
         Log.d("debug notesList", notesList.toString());
-        ArrayList<String> idsList = (ArrayList<String>) b.getSerializable("idsList");
+        idsList = (ArrayList<String>) b.getSerializable("idsList");
         Log.d("debug idsList", idsList.toString());
         amountsStr = listToString(amountsList);
         notesStr = listToString(notesList);
@@ -59,8 +63,22 @@ public class RequestActivity extends PythonConsoleActivity {
         }
 
         @Override public void run() {
-            py.getModule("main").callAttr("venmo_payments", username, password,
-                    amountsStr, notesStr, idsStr);
+            try {
+                py.getModule("main").callAttr("venmo_payments", username, password,
+                        amountsStr, notesStr, idsStr);
+            }
+            catch (PyException error) {
+                Intent intent = new Intent(getApplication().getApplicationContext(), PaymentActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("amountsList", amountsList);
+                bundle.putSerializable("notesList", notesList);
+                bundle.putSerializable("idsList", idsList);
+                intent.putExtras(bundle);
+
+                getApplication().getApplicationContext().startActivity(intent);
+            }
         }
     }
 }

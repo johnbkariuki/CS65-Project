@@ -16,7 +16,12 @@ import androidx.appcompat.app.*;
 import androidx.core.content.*;
 import androidx.lifecycle.*;
 import com.example.checkmate.VenmoAdapter;
+import com.example.checkmate.console.LoginActivity;
+import com.example.checkmate.console.PaymentActivity;
+
 import org.w3c.dom.Text;
+
+import java.util.ArrayList;
 
 /**
  * Credit for some of file: https://github.com/chaquo/chaquopy-console
@@ -27,12 +32,24 @@ public abstract class ConsoleActivity extends AppCompatActivity
 implements ViewTreeObserver.OnGlobalLayoutListener {
 
     protected Task task;
+    protected Boolean fromLogin;
+    protected ArrayList<Double> amountsList;
+    protected ArrayList<String> notesList;
+    protected ArrayList<String> idsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         task = ViewModelProviders.of(this).get(getTaskClass());
         setContentView(resId("layout", "activity_console"));
+
+        // Check if console called from LoginActivity
+        Bundle bundle = getIntent().getExtras();
+        fromLogin = bundle.getBoolean("fromLogin");
+        amountsList = (ArrayList<Double>) bundle.getSerializable("amountsList");
+        notesList = (ArrayList<String>) bundle.getSerializable("notesList");
+        idsList = (ArrayList<String>) bundle.getSerializable("idsList");
+
         createInput();
     }
 
@@ -59,9 +76,12 @@ implements ViewTreeObserver.OnGlobalLayoutListener {
         task.output.observe(this, new Observer<CharSequence>() {
             @Override
             public void onChanged(CharSequence charSequence) {
+                // Get string from console output
                 String str = charSequence.toString();
                 Log.d("debug onChanged", str);
                 String[] arr = str.split(" ");
+
+                // Get user id
                 if (arr[0].equals("user_id")) {
                     Intent intent = new Intent(ConsoleActivity.this, VenmoAdapter.class);
                     Bundle bundle = new Bundle();
@@ -70,6 +90,8 @@ implements ViewTreeObserver.OnGlobalLayoutListener {
                     ConsoleActivity.this.startActivity(intent);
                     finish();
                 }
+
+                // Get unsuccessful request ids
                 else if (arr[0].equals("unsuccessful_ids")) {
                     Intent intent = new Intent(ConsoleActivity.this, VenmoAdapter.class);
                     String ret = "";
@@ -79,6 +101,30 @@ implements ViewTreeObserver.OnGlobalLayoutListener {
                     Bundle bundle = new Bundle();
                     bundle.putString("unsuccessful", ret);
                     intent.putExtras(bundle);
+                    ConsoleActivity.this.startActivity(intent);
+                    finish();
+                }
+
+                // Handle invalid username+password or OTP code
+                else if (arr[0].equals("invalid_login") || arr[0].equals("invalid_otp")) {
+                    // Display the issue
+                    if(arr[0].equals("invalid_login")) {
+                        Toast.makeText(getApplicationContext(), "Invalid Venmo credentials", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Invalid OTP code", Toast.LENGTH_LONG).show();
+                    }
+                    // Restart login/payment activities
+                    Intent intent;
+                    if(fromLogin) {
+                        intent = new Intent(ConsoleActivity.this, LoginActivity.class);
+                    } else {
+                        intent = new Intent(ConsoleActivity.this, PaymentActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("amountsList", amountsList);
+                        bundle.putSerializable("notesList", notesList);
+                        bundle.putSerializable("idsList", idsList);
+                        intent.putExtras(bundle);
+                    }
                     ConsoleActivity.this.startActivity(intent);
                     finish();
                 }
