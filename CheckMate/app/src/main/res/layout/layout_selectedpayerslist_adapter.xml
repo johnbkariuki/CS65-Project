@@ -4,14 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/payer_profile_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_centerVertical="true"
         android:layout_margin="10dp"
         android:backgroundTint="@color/white"
-        android:src="@drawable/ic_person" />
+        android:src="@drawable/ic_person"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
     <TextView
         android:id="@+id/payer_username"
         android:layout_width="wrap_content"

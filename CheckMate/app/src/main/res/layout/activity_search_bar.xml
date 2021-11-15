@@ -16,14 +16,15 @@
             android:id="@+id/user_search"
             app:queryBackground="@drawable/bg_white_rounded"
             app:submitBackground="@drawable/bg_white_rounded"
-            android:background="@drawable/bg_white_rounded"
-            />
+            android:background="@drawable/bg_white_rounded" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:layout_marginStart="15dp"
             android:text="Added Payers: "/>
+
         <ListView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
