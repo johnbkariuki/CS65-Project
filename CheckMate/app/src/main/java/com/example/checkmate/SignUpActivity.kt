@@ -67,6 +67,8 @@ class SignUpActivity: AppCompatActivity() {
         val password = passwordText.text.toString().trim()
         // check venmo
         val venmo = venmoText.text.toString().trim()
+        //check phone
+        //val phone = phoneText.text.toString().trim()
 
         if (username.isEmpty() || email.isEmpty() || password.isEmpty() || venmo.isEmpty()) {
             val builder = AlertDialog.Builder(this)
@@ -99,7 +101,7 @@ class SignUpActivity: AppCompatActivity() {
 
                         // input into database
                         val user =
-                            User(username, email, password, venmo, generateKeywords(username), ArrayList<Receipt>())
+                            User(username, email, password, venmo, generateKeywords(username),"phone", ArrayList<Receipt>())
                         mDatabase.child("users").child(mUserId).child("user").child("username")
                             .push().setValue(user.username)
                         mDatabase.child("users").child(mUserId).child("user").child("email")
@@ -113,6 +115,9 @@ class SignUpActivity: AppCompatActivity() {
                         mDatabase.child("users").child(mUserId).child("user").child("keywords")
                             .push()
                             .setValue(user.keywords)
+                        mDatabase.child("users").child(mUserId).child("user").child("phone")
+                            .push()
+                            .setValue(user.phone)
                         mDatabase.child("users").child(mUserId).child("user").child("receipts")
                             .push()
                             .setValue(user.receipts)

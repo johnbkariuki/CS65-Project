@@ -34,6 +34,7 @@ import com.google.firebase.database.DatabaseError
 import androidx.annotation.NonNull
 import com.example.checkmate.console.LoginActivity
 import androidx.fragment.app.FragmentManager
+import com.bumptech.glide.signature.ObjectKey
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 import com.google.firebase.database.DataSnapshot
@@ -194,7 +195,7 @@ class ProfileActivity : AppCompatActivity() {
             }
 
         FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
-            Glide.with(this).load(it).into(imageView)
+            Glide.with(this).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(imageView)
         }
     }
 

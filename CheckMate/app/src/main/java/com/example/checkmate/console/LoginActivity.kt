@@ -43,6 +43,7 @@ class LoginActivity: AppCompatActivity() {
         bundle.putBoolean("fromLogin", true)
         intent.putExtras(bundle)
 
+        // already running make sure not running anymore
         if(!Python.isStarted()) {
             Python.start(AndroidPlatform(applicationContext))
         }
