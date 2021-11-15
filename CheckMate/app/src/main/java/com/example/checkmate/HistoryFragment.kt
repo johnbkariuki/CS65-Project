@@ -41,6 +41,7 @@ class HistoryFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_history, container, false)
 
+        // get views
         headerText = view.findViewById(R.id.historyHeader)
         profileImage = view.findViewById(R.id.profile_image)
         usernameText = view.findViewById(R.id.username_text)
@@ -60,6 +61,7 @@ class HistoryFragment : Fragment() {
             mFirebaseFirestore = FirebaseFirestore.getInstance()
             mFirebaseAuth.signInWithEmailAndPassword(email, password)
 
+            // retrieve userid for firebase
             if (mFirebaseAuth.currentUser != null) {
                 mCurrUser = mFirebaseAuth.currentUser!!
                 mUserId = mCurrUser.uid
@@ -111,6 +113,7 @@ class HistoryFragment : Fragment() {
                             parent.context?.startActivity(intent)
                         }
 
+                        // load profile pic
                         FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
                             Glide.with(this).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage)
                         }
@@ -122,6 +125,7 @@ class HistoryFragment : Fragment() {
                             .addSnapshotListener { value, error ->
                                 val receipts = value!!.data!!["receipts"] as ArrayList<*>
                                 val historyListFirestore = ArrayList<ReceiptEntry>()
+                                // load receipts in history
                                 if (receipts.isNotEmpty()) {
                                     for (receipt in receipts) {
                                         val receiptObj = receipt as HashMap<*, *>
@@ -129,7 +133,6 @@ class HistoryFragment : Fragment() {
                                         receiptEntry.date = receiptObj["date"].toString()
                                         receiptEntry.itemList =
                                             Globals.ArrayList2Byte(receiptObj["itemList"] as ArrayList<String>)
-
 
                                         var payer = ""
                                         val payer_by_id = receiptObj["payer"].toString()
@@ -139,6 +142,7 @@ class HistoryFragment : Fragment() {
                                         val payersList = Array<String>(payersList_by_id.size) { "" }
                                         val mutable_payersList = payersList.toMutableList()
 
+                                        // retrieve payer usernames
                                         for (document in all_data.documents) {
                                             if (payer_by_id == document.id) {
                                                 payer = document.data?.get("username") as String

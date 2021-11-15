@@ -69,6 +69,7 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         println("debug:$translatedPriceList")
 
         try {
+            // calculate amount paid by user and total bill cost
             for (i in 0 until translatedPayerList.size) {
                 val payer = translatedPayerList[i]
                 val price = translatedPriceList[i].toFloat()
@@ -90,7 +91,7 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
             receiptDateText.text = receipt.date
         }
 
-        // set textviews
+        // if user paid the bill
         if (!requestor.equals(username)) {
             val amountPaidString = String.format("%.2f", amountPaid)
             val totalPaidString = String.format("%.2f", totalPaid)
@@ -126,21 +127,6 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         receiptDateText.text = receipt.date
 
         return view
-    }
-
-    fun getColoredString(string: String, color: Int): SpannableString? {
-        val spannableString = SpannableString(string)
-        for (i in 0 until string.length) {
-            if (Character.isDigit(string[i])) {
-                spannableString.setSpan(
-                    ForegroundColorSpan(color),
-                    i,
-                    i + 1,
-                    Spanned.SPAN_INCLUSIVE_INCLUSIVE
-                )
-            }
-        }
-        return spannableString
     }
 
     fun replace(newHistoryList: List<ReceiptEntry>){
