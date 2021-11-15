@@ -1,10 +1,13 @@
 package com.example.checkmate.console;
 
 import android.app.*;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.chaquo.python.PyException;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
 import com.example.checkmate.utils.*;
@@ -38,7 +41,14 @@ public class CodeActivity extends PythonConsoleActivity {
         }
 
         @Override public void run() {
-            py.getModule("main").callAttr("venmo_setup", username, password);
+            try {
+                py.getModule("main").callAttr("venmo_setup", username, password);
+            }
+            catch (PyException error) {
+                Intent intent = new Intent(getApplication().getApplicationContext(), LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getApplication().getApplicationContext().startActivity(intent);
+            }
         }
     }
 }
