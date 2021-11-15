@@ -506,6 +506,7 @@ class ReceiptActivity : AppCompatActivity() {
     fun onSendVenmoPressed(view: View){
         if (receiptMode == Globals.RECEIPT_NEW_MODE) {
             // save receipt
+
             if(receiptList.isNotEmpty()){
                 saveReceiptEntry()
                 sendVenmoRequests()
@@ -524,10 +525,7 @@ class ReceiptActivity : AppCompatActivity() {
             // save receipt
             if(receiptList.isNotEmpty()){
                 saveReceiptEntry()
-
-                CoroutineScope(IO).launch{
-                    sendSMS(payer,payerList,priceList,itemList)
-                }
+                sendSMS(payer,payerList,priceList,itemList)
 
                 // display toast and exit activity
                 finish()
@@ -547,9 +545,9 @@ class ReceiptActivity : AppCompatActivity() {
                     println("completed!")
                     val user = it.result.documents
                     for (value in user) {
-                        println("added to: ${value.get("venmo")}")
+                        println("added to: ${value.get("phone")}")
                         val sms_message = "$requestor is reminding you to send ${priceList[index]} for ${itemList[index]}. For more information please visit the CheckMate App"
-                        val number = value.get("venmo") as String
+                        val number = value.get("phone") as String
                         println("number:$number")
                         sendSMSRequest(number, sms_message)
                     }
@@ -648,7 +646,7 @@ class ReceiptActivity : AppCompatActivity() {
                     }
                 }
             }
-            println("debug $mutable_payersList_by_id")
+            println("debug1 $mutable_payersList_by_id")
 
             val receipt = Receipt(title, date, payer_id, priceList, itemList, mutable_payersList_by_id)
             storeToInfo(payers,receipt)

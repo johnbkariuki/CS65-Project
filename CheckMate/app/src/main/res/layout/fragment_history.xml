@@ -63,10 +63,17 @@
         android:id="@+id/historyHeader"
         android:text="@string/history_header"/>
 
-    <ListView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:id="@+id/historyList" />
+        android:fillViewport="true">
+
+        <ListView
+            android:id="@+id/historyList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+
+    </ScrollView>
 
 </LinearLayout>
