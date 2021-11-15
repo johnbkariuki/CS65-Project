@@ -42,6 +42,7 @@ class VenmoAdapter: AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
             venmoUserSignUp = false
         } else {
+            // discuss with jason
             startActivity(Intent(this, ProfileActivity::class.java))
         }
         finish()

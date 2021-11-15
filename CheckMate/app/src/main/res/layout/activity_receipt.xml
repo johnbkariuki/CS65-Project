@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -28,7 +29,9 @@
             android:id="@+id/receiptList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/receipt_title"/>
+            android:layout_below="@id/receipt_title">
+
+        </ListView>
 
 <!--        </LinearLayout>-->
 
@@ -46,19 +49,49 @@
             android:layout_height="wrap_content"
             android:layout_above="@+id/submit_receipt_button"
             android:layout_alignParentRight="true"
-            android:layout_marginBottom="10dp"
             android:layout_marginRight="20dp"
-            android:src="@drawable/ic_add_payer"/>
+            android:layout_marginBottom="10dp"
+
+            android:src="@drawable/ic_add_payer" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
             android:id="@+id/submit_receipt_button"
-            android:onClick="onSubmitReceipt"
-            android:src="@drawable/ic_submit"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
+            android:focusable="true"
+            android:onClick="onSubmitReceipt"
+            android:src="@drawable/ic_submit" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/send_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="19dp"
+            android:layout_marginBottom="20dp"
+            android:layout_toStartOf="@+id/submit_receipt_button"
+            android:clickable="true"
+            android:visibility="invisible"
+            android:backgroundTint="@color/purple_200"
+            android:onClick="onSendTextPressed"
+            app:srcCompat="@drawable/ic_send_text" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/send_venmo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="19dp"
+            android:layout_marginBottom="20dp"
+            android:layout_toStartOf="@+id/send_text"
+            android:backgroundTint="@color/purple_500"
+            android:clickable="true"
+            android:visibility="invisible"
+            android:onClick="onSendVenmoPressed"
+            app:srcCompat="@drawable/ic_venmo_request" />
 
 </RelativeLayout>

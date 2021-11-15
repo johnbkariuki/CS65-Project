@@ -28,7 +28,7 @@ class SignUpActivity: AppCompatActivity() {
     private lateinit var usernameText: EditText
     private lateinit var emailText: EditText
     private lateinit var passwordText: EditText
-    private lateinit var venmoText: EditText
+    private lateinit var phoneText: EditText
     private lateinit var mFirebaseAuth: FirebaseAuth
     private lateinit var mFirebaseUser: FirebaseUser
     private lateinit var mUserId: String
@@ -46,7 +46,8 @@ class SignUpActivity: AppCompatActivity() {
         usernameText = findViewById(R.id.username_edittext)
         emailText = findViewById(R.id.email_sign_up_edittext)
         passwordText = findViewById(R.id.password_sign_up_edittext)
-        venmoText = findViewById(R.id.venmo_edittext)
+        phoneText = findViewById(R.id.phone_edittext)
+
 
         mFirebaseAuth = FirebaseAuth.getInstance()
         mDatabase = FirebaseDatabase.getInstance().reference
@@ -65,12 +66,10 @@ class SignUpActivity: AppCompatActivity() {
         val email = emailText.text.toString().trim()
         // check password
         val password = passwordText.text.toString().trim()
-        // check venmo
-        val venmo = venmoText.text.toString().trim()
         //check phone
-        //val phone = phoneText.text.toString().trim()
+        val phone = phoneText.text.toString().trim()
 
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || venmo.isEmpty()) {
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || phone.isEmpty()) {
             val builder = AlertDialog.Builder(this)
             builder.setMessage(R.string.signup_error_message)
             builder.setTitle(R.string.signup_error_title)
@@ -101,7 +100,7 @@ class SignUpActivity: AppCompatActivity() {
 
                         // input into database
                         val user =
-                            User(username, email, password, venmo, generateKeywords(username),"phone", ArrayList<Receipt>())
+                            User(username, email, password, null, generateKeywords(username),phone, ArrayList<Receipt>())
                         mDatabase.child("users").child(mUserId).child("user").child("username")
                             .push().setValue(user.username)
                         mDatabase.child("users").child(mUserId).child("user").child("email")

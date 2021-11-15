@@ -30,7 +30,7 @@ class HistoryFragment : Fragment() {
     private lateinit var headerText: TextView
     private lateinit var profileImage: ImageView
     private lateinit var usernameText: TextView
-    private lateinit var venmoText: TextView
+    private lateinit var phoneText: TextView
 
     // for accessing firebase
     private lateinit var mFirebaseAuth: FirebaseAuth
@@ -44,7 +44,7 @@ class HistoryFragment : Fragment() {
         headerText = view.findViewById(R.id.historyHeader)
         profileImage = view.findViewById(R.id.profile_image)
         usernameText = view.findViewById(R.id.username_text)
-        venmoText = view.findViewById(R.id.venmo_text)
+        phoneText = view.findViewById(R.id.phone_text)
 
         // check if logged in
         val pref = requireActivity().getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
@@ -72,9 +72,9 @@ class HistoryFragment : Fragment() {
 
                         // get username
                         username = it.data!!["username"].toString()
-                        val venmo = it.data!!["venmo"].toString()
+                        val phone = it.data!!["phone"].toString()
                         usernameText.text = "Username: @$username"
-                        venmoText.text = "Venmo: @$venmo"
+                        phoneText.text = "Phone No. :$phone"
                         headerText.text =
                             "Welcome, @$username! \nHere's a look at your payment history:"
 
@@ -184,9 +184,9 @@ class HistoryFragment : Fragment() {
                     .addOnSuccessListener {
                         // get username
                         username = it.data!!["username"].toString()
-                        val venmo = it.data!!["venmo"].toString()
+                        val phone = it.data!!["phone"].toString()
                         usernameText.text = "Username: @$username"
-                        venmoText.text = "Venmo: @$venmo"
+                        phoneText.text = "Phone No. :$phone"
                         headerText.text =
                             "Welcome, @$username! \nHere's a look at your payment history:"
 

@@ -43,8 +43,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/venmo_text"
-                android:text="Venmo"
+                android:id="@+id/phone_text"
+                android:text="Phone No."
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="10dp" />
@@ -63,10 +63,17 @@
         android:id="@+id/historyHeader"
         android:text="@string/history_header"/>
 
-    <ListView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:id="@+id/historyList" />
+        android:fillViewport="true">
+
+        <ListView
+            android:id="@+id/historyList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+
+    </ScrollView>
 
 </LinearLayout>
