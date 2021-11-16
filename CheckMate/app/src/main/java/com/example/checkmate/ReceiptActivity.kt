@@ -180,6 +180,12 @@ class ReceiptActivity : AppCompatActivity() {
             builder.setPositiveButton(android.R.string.ok) { _, _ -> getReceipt() }
 
             val dialog = builder.create()
+            dialog.setOnKeyListener { _, keyCode, _ ->
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    finish()
+                }
+                true
+            }
             dialog.show()
 
             // if displaying past receipt from history

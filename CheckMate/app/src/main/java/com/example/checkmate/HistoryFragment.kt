@@ -41,6 +41,10 @@ class HistoryFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_history, container, false)
 
+        if (activity == null){
+            return view
+        }
+
         // get views
         headerText = view.findViewById(R.id.historyHeader)
         profileImage = view.findViewById(R.id.profile_image)
@@ -114,10 +118,10 @@ class HistoryFragment : Fragment() {
 
                         // load profile pic
                         FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
-                            Glide.with(this).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage)
+                            activity?.applicationContext?.let { it1 -> Glide.with(it1).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage) }
                         }
                             .addOnFailureListener {
-                                Glide.with(this).load(R.drawable.default_image).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage)
+                                activity?.applicationContext?.let { it1 -> Glide.with(it1).load(R.drawable.default_image).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage) }
                             }
 
                         mFirebaseFirestore.collection("users").document(mUserId)
@@ -181,6 +185,11 @@ class HistoryFragment : Fragment() {
         super.onResume()
 
         if (this::mFirebaseFirestore.isInitialized) {
+
+            if (activity == null){
+                return
+            }
+
             mFirebaseFirestore.collection("users").get().addOnSuccessListener { all_data ->
 
                 mFirebaseFirestore.collection("users").document(mUserId).get()
@@ -223,10 +232,10 @@ class HistoryFragment : Fragment() {
                         }
 
                         FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
-                            Glide.with(this).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage)
+                            activity?.applicationContext?.let { it1 -> Glide.with(it1).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage) }
                         }
                             .addOnFailureListener {
-                                Glide.with(this).load(R.drawable.default_image).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage)
+                                activity?.applicationContext?.let { it1 -> Glide.with(it1).load(R.drawable.default_image).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage) }
                             }
 
                         mFirebaseFirestore.collection("users").document(mUserId)
