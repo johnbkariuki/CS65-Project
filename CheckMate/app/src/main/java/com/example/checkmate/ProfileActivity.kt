@@ -172,8 +172,6 @@ class ProfileActivity : AppCompatActivity() {
         // firestore specific
         mFirebaseFirestore.collection("users").document(mUserId).get()
             .addOnSuccessListener {
-
-                // println("debug: $it") // debugging purposes
                 usernameText.text = it.data!!["username"].toString()
                 phoneText.text = it.data!!["phone"].toString()
             }
@@ -192,8 +190,6 @@ class ProfileActivity : AppCompatActivity() {
         // firestore specific
         mFirebaseFirestore.collection("users").document(mUserId).get()
             .addOnSuccessListener {
-
-                // println("debug: $it") // debugging purposes
                 usernameText.text = it.data!!["username"].toString()
                 phoneText.text = it.data!!["phone"].toString()
             }

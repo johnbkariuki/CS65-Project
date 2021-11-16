@@ -127,7 +127,6 @@ class UserRetrievedActivity : AppCompatActivity() {
                     // check for if user clicks on item in history list
                     historyListView.setOnItemClickListener() { parent: AdapterView<*>, view: View, position: Int, id: Long ->
                         val receiptEntry = listAdapter.getItem(position) as ReceiptEntry
-                        println("debug: entry #$position selected")
 
                         // pass needed parameters to ReceiptActivity intent
                         val intent = Intent(parent.context, ReceiptActivity::class.java)

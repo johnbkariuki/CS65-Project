@@ -149,9 +149,7 @@ implements ViewTreeObserver.OnGlobalLayoutListener {
 
     @Override public boolean onOptionsItemSelected(MenuItem item) {return true;}
 
-    private void output(CharSequence text) {
-        Log.d("debug python output", text.toString());
-    }
+    private void output(CharSequence text) { }
 
     public int resId(String type, String name) {
         return Utils.resId(this, type, name);
@@ -195,7 +193,6 @@ implements ViewTreeObserver.OnGlobalLayoutListener {
 
         public void output(final CharSequence text) {
             if (text.length() == 0) return;
-            Log.d("debug python output", text.toString());
             output.postValue(text);
         }
 

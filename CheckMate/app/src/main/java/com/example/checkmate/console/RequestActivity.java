@@ -28,11 +28,8 @@ public class RequestActivity extends PythonConsoleActivity {
         username = b.getString("username");
         password = b.getString("password");
         amountsList = (ArrayList<Double>) b.getSerializable("amountsList");
-        Log.d("debug amountsList", amountsList.toString());
         notesList = (ArrayList<String>) b.getSerializable("notesList");
-        Log.d("debug notesList", notesList.toString());
         idsList = (ArrayList<String>) b.getSerializable("idsList");
-        Log.d("debug idsList", idsList.toString());
         amountsStr = listToString(amountsList);
         notesStr = listToString(notesList);
         idsStr = listToString(idsList);

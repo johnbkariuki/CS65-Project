@@ -212,8 +212,6 @@ class UpdateProfileActivity:AppCompatActivity() {
         // firestore specific
         mFirebaseFirestore.collection("users").document(mUserId).get()
             .addOnSuccessListener {
-
-                // println("debug: $it") // debugging purposes
                 usernameText.setText(it.data!!["username"].toString())
                 phoneText.setText(it.data!!["phone"].toString())
             }

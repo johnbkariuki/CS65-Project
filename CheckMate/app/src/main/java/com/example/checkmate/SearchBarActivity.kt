@@ -151,7 +151,6 @@ class  SearchBarActivity : AppCompatActivity() {
         query?.let {
             suggestions.forEachIndexed { index, suggestion ->
                 if (suggestion.contains(query, true)) {
-                    println("debug: added ($index, $suggestion) to cursor")
                     cursor.addRow(arrayOf(index, suggestion))
                 }
             }
