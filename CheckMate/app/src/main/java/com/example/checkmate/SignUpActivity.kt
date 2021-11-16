@@ -163,6 +163,7 @@ class SignUpActivity: AppCompatActivity() {
                     }
 
                 } else {
+                    // task unsuccessful means an already existing email was trying to be re-registered
                     val builder = AlertDialog.Builder(this)
                     builder.setMessage(R.string.used_email_error_message)
                     builder.setTitle(R.string.signup_error_title)

@@ -41,6 +41,11 @@ class HistoryFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_history, container, false)
 
+        // if this fragment is detached from firebase do not try to do anything
+        if (activity == null){
+            return view
+        }
+
         // get views
         headerText = view.findViewById(R.id.historyHeader)
         profileImage = view.findViewById(R.id.profile_image)
@@ -67,6 +72,7 @@ class HistoryFragment : Fragment() {
                 mUserId = mCurrUser.uid
             }
 
+            // get all the data in the database
             mFirebaseFirestore.collection("users").get().addOnSuccessListener { all_data ->
 
                 mFirebaseFirestore.collection("users").document(mUserId).get()
@@ -114,16 +120,17 @@ class HistoryFragment : Fragment() {
 
                         // load profile pic
                         FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
-                            Glide.with(this).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage)
+                            activity?.applicationContext?.let { it1 -> Glide.with(it1).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage) }
                         }
                             .addOnFailureListener {
-                                Glide.with(this).load(R.drawable.default_image).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage)
+                                activity?.applicationContext?.let { it1 -> Glide.with(it1).load(R.drawable.default_image).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage) }
                             }
 
                         mFirebaseFirestore.collection("users").document(mUserId)
                             .addSnapshotListener { value, error ->
                                 val receipts = value!!.data!!["receipts"] as ArrayList<*>
                                 val historyListFirestore = ArrayList<ReceiptEntry>()
+
                                 // load receipts in history
                                 if (receipts.isNotEmpty()) {
                                     for (receipt in receipts) {
@@ -136,8 +143,7 @@ class HistoryFragment : Fragment() {
                                         var payer = ""
                                         val payer_by_id = receiptObj["payer"].toString()
 
-                                        val payersList_by_id =
-                                            receiptObj["payerList"] as ArrayList<String>
+                                        val payersList_by_id = receiptObj["payerList"] as ArrayList<String>
                                         val payersList = Array<String>(payersList_by_id.size) { "" }
                                         val mutable_payersList = payersList.toMutableList()
 
@@ -181,6 +187,11 @@ class HistoryFragment : Fragment() {
         super.onResume()
 
         if (this::mFirebaseFirestore.isInitialized) {
+
+            if (activity == null){
+                return
+            }
+
             mFirebaseFirestore.collection("users").get().addOnSuccessListener { all_data ->
 
                 mFirebaseFirestore.collection("users").document(mUserId).get()
@@ -223,10 +234,10 @@ class HistoryFragment : Fragment() {
                         }
 
                         FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
-                            Glide.with(this).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage)
+                            activity?.applicationContext?.let { it1 -> Glide.with(it1).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage) }
                         }
                             .addOnFailureListener {
-                                Glide.with(this).load(R.drawable.default_image).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage)
+                                activity?.applicationContext?.let { it1 -> Glide.with(it1).load(R.drawable.default_image).signature(ObjectKey(System.currentTimeMillis().toString())).into(profileImage) }
                             }
 
                         mFirebaseFirestore.collection("users").document(mUserId)

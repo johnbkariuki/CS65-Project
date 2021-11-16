@@ -83,6 +83,7 @@ class ReceiptActivity : AppCompatActivity() {
 
     private var clicked = false
 
+    // used to crop the receipt
     private val cropActivityResultContract = object: ActivityResultContract<Any,Uri?>(){
         override fun createIntent(context: Context, input: Any?): Intent {
             return CropImage.activity()
@@ -94,12 +95,14 @@ class ReceiptActivity : AppCompatActivity() {
             return if (resultCode == RESULT_OK){
                 CropImage.getActivityResult(intent)?.uri
             } else{
+                // if cropping is unsuccessful then exit this activity
                 finish()
                 null
             }
         }
     }
 
+    // used to crop the receipt
     private var cropActivityResultLauncher: ActivityResultLauncher<Any?> = registerForActivityResult(cropActivityResultContract){
         it?.let{ uri ->
             val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver,uri)
@@ -171,15 +174,28 @@ class ReceiptActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            // launch camera/receipt scanner
+            // initialize text recogition code
             recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
+            // show instructions for using this receipt scanner
+            // once ok is pressed launch the cropping activity
             val builder = AlertDialog.Builder(this)
             builder.setMessage(R.string.receipt_instructions)
             builder.setTitle(R.string.receipt_instruction_title)
             builder.setPositiveButton(android.R.string.ok) { _, _ -> getReceipt() }
 
             val dialog = builder.create()
+
+            // make sure users can't click outside the dialog box
+            dialog.setCanceledOnTouchOutside(false)
+
+            // if backpressed when the dialog is showing then exit this activity entirely
+            dialog.setOnKeyListener { _, keyCode, _ ->
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    finish()
+                }
+                true
+            }
             dialog.show()
 
             // if displaying past receipt from history
@@ -311,7 +327,7 @@ class ReceiptActivity : AppCompatActivity() {
             }
         }
 
-        if (priceList.size == itemList.size){
+        if ((priceList.size == itemList.size) && (priceList.size!=0) && (itemList.size!=0)){
             // if quantities were retrieved
             if (priceList.size == quantityList.size){
                 var newPriceList = arrayListOf<String>()
@@ -497,6 +513,7 @@ class ReceiptActivity : AppCompatActivity() {
         clicked = !clicked
     }
 
+    // used to show the send venmo and text buttons once the submit button is pressed
     fun setVisibility(clicked: Boolean){
         sendTextButton = findViewById<FloatingActionButton>(R.id.send_text)
         sendVenmoButton = findViewById<FloatingActionButton>(R.id.send_venmo)
@@ -521,8 +538,8 @@ class ReceiptActivity : AppCompatActivity() {
 
     fun onSendVenmoPressed(view: View){
         if (receiptMode == Globals.RECEIPT_NEW_MODE) {
-            // save receipt
 
+            // save receipt
             if(receiptList.isNotEmpty()){
                 saveReceiptEntry()
                 sendVenmoRequests()
@@ -543,7 +560,7 @@ class ReceiptActivity : AppCompatActivity() {
                 saveReceiptEntry()
                 sendSMS(payer,payerList,priceList,itemList)
 
-                // display toast and exit activity
+                //exit activity
                 finish()
             }else{
                 Toast.makeText(this, Globals.RECEIPT_SUBMISSION_FAILURE, Toast.LENGTH_SHORT).show()
@@ -554,7 +571,7 @@ class ReceiptActivity : AppCompatActivity() {
     fun sendSMS(requestor: String, payersList: List<String>, priceList: List<String>, itemList: List<String>){
 
         for (index in payersList.indices) {
-            // grab the user from firestore and modify their receipt history w this new receipt
+            // grab the user from firestore and sent a text message to them
             mFirebaseFirestore.collection("users").whereEqualTo("username", payersList[index])
                 .get()
                 .addOnCompleteListener {
@@ -644,8 +661,12 @@ class ReceiptActivity : AppCompatActivity() {
                     for (value in user) {
                         val id = value.id
                         println("added to: ${value}")
+
+                        // update the payers receipt list in firestore
+                        val firebaseReceiptsList: ArrayList<Receipt> = value.get("receipts") as ArrayList<Receipt>
+                        firebaseReceiptsList.add(receipt)
                         mFirebaseFirestore.collection("users").document(id)
-                            .update("receipts", FieldValue.arrayUnion(receipt))
+                            .update("receipts", firebaseReceiptsList)
                     }
                 }
         }
@@ -655,6 +676,9 @@ class ReceiptActivity : AppCompatActivity() {
         mFirebaseFirestore.collection("users").get().addOnSuccessListener {
             val payersList_by_id = Array<String>(payersList.size){""}
             val mutable_payersList_by_id = payersList_by_id.toMutableList()
+
+            // convert the payersList from a username list to an id list
+            // id list is better to store because the id never changes but the username can change
             for (document in it.documents){
                 for (index in 0 until payersList.size){
                     if (payersList[index] == document.data?.get("username")){
@@ -665,8 +689,17 @@ class ReceiptActivity : AppCompatActivity() {
 
             val receipt = Receipt(title, date, payer_id, priceList, itemList, mutable_payersList_by_id)
             storeToInfo(payers,receipt)
-            if (!payers.contains(mUserId)) mFirebaseFirestore.collection("users").document(mUserId)
-                    .update("receipts", FieldValue.arrayUnion(receipt))
+
+            // if the current user is not paying for an item still add a copy of the receipt to their receipt list
+            if(!payers.contains(mUserId)){
+                mFirebaseFirestore.collection("users").document(mUserId).get()
+                    .addOnSuccessListener {
+                        val firebaseReceiptsList: ArrayList<Receipt> = it.data!!["receipts"] as ArrayList<Receipt>
+                        firebaseReceiptsList.add(receipt)
+                        mFirebaseFirestore.collection("users").document(mUserId)
+                            .update("receipts", firebaseReceiptsList)
+                    }
+            }
         }
     }
 }
