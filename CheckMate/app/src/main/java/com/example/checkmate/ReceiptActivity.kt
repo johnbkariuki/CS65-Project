@@ -100,7 +100,13 @@ class ReceiptActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var cropActivityResultLauncher: ActivityResultLauncher<Any?>
+    private var cropActivityResultLauncher: ActivityResultLauncher<Any?> = registerForActivityResult(cropActivityResultContract){
+        it?.let{ uri ->
+            val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver,uri)
+            receiptImage = InputImage.fromBitmap(bitmap, 0)
+            runTextRecognition()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -166,19 +172,16 @@ class ReceiptActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            // launch camera instructions
+            // launch camera/receipt scanner
+            recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
             val builder = AlertDialog.Builder(this)
             builder.setMessage(R.string.receipt_instructions)
             builder.setTitle(R.string.receipt_instruction_title)
-            builder.setPositiveButton(android.R.string.ok, null)
+            builder.setPositiveButton(android.R.string.ok) { _, _ -> getReceipt() }
 
             val dialog = builder.create()
             dialog.show()
-
-            // launch camera/receipt scanner
-            recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-            getReceipt()
-
 
             // if displaying past receipt from history
         } else if (receiptMode == Globals.RECEIPT_HISTORY_MODE) {
@@ -242,13 +245,6 @@ class ReceiptActivity : AppCompatActivity() {
 
     // taking photo
     fun getReceipt() {
-        cropActivityResultLauncher = registerForActivityResult(cropActivityResultContract){
-            it?.let{ uri ->
-                val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver,uri)
-                receiptImage = InputImage.fromBitmap(bitmap, 0)
-                runTextRecognition()
-            }
-        }
         cropActivityResultLauncher.launch(null)
     }
 
