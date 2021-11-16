@@ -192,6 +192,7 @@ class UpdateProfileActivity:AppCompatActivity() {
 
                 //update email just incase it was changed
                 email = emailText.text.toString()
+                password = passwordText.text.toString()
 
                 val editor: SharedPreferences.Editor = pref.edit()
                 editor.putString(SignUpActivity.EMAIL_KEY, email)

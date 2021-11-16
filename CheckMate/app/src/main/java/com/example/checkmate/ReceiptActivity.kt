@@ -180,6 +180,7 @@ class ReceiptActivity : AppCompatActivity() {
             builder.setPositiveButton(android.R.string.ok) { _, _ -> getReceipt() }
 
             val dialog = builder.create()
+            dialog.setCanceledOnTouchOutside(false)
             dialog.setOnKeyListener { _, keyCode, _ ->
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
                     finish()
