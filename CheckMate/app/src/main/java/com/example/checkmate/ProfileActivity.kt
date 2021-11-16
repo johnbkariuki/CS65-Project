@@ -74,6 +74,7 @@ class ProfileActivity : AppCompatActivity() {
     // venmo
     private lateinit var venmoBtn: Button
 
+    // used to crop image taken
     private val cropActivityResultContract = object: ActivityResultContract<Any, Uri?>(){
         override fun createIntent(context: Context, input: Any?): Intent {
             return CropImage.activity().getIntent(this@ProfileActivity)
@@ -90,8 +91,10 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
+        // get view
         imageView = findViewById(R.id.profileImg)
 
+        // initialize cropping activity result
         cropActivityResultLauncher = registerForActivityResult(cropActivityResultContract){
             it?.let{ uri ->
                 val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver,uri)
@@ -117,7 +120,10 @@ class ProfileActivity : AppCompatActivity() {
         if (mFirebaseAuth.currentUser != null) {
             mCurrUser = mFirebaseAuth.currentUser!!
             mUserId = mCurrUser.uid
+
+            // get the firebase location the users image will be stored in
             storageReference = FirebaseStorage.getInstance().getReference("users/$mUserId")
+
             loadView()
         }
 
@@ -129,15 +135,13 @@ class ProfileActivity : AppCompatActivity() {
             editor.putString(SignUpActivity.PASSWORD_KEY, password)
             editor.putBoolean(Globals.LOGGED_IN_KEY,true)
             editor.apply()
+
+            // if there is a profile picture to save, save it
             if(this::profileUpdates.isInitialized){
                 storageReference.putFile(imageUri)
             }
-            Toast.makeText(this, SAVED_MESSAGE, Toast.LENGTH_SHORT).show()
 
-            // do not uncomment :)
-            // if we finish while firebase is still saving the new image it doesn't refresh properly on the
-            // history page
-            //finish()
+            Toast.makeText(this, SAVED_MESSAGE, Toast.LENGTH_SHORT).show()
         }
 
         cancelButton = findViewById(R.id.cancel_button_profile)
@@ -194,6 +198,7 @@ class ProfileActivity : AppCompatActivity() {
                 phoneText.text = it.data!!["phone"].toString()
             }
 
+        // get saved image from firestore and display it
         FirebaseStorage.getInstance().reference.child("users/$mUserId").downloadUrl.addOnSuccessListener {
             Glide.with(this).load(it).signature(ObjectKey(System.currentTimeMillis().toString())).into(imageView)
         }
@@ -204,14 +209,17 @@ class ProfileActivity : AppCompatActivity() {
         return true
     }
 
+    // profile menu bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId){
+            // start the update profile activity
             R.id.edit_profile_button -> {
                 Toast.makeText(this, "You can now edit your profile", Toast.LENGTH_SHORT).show()
                 val updateProfileIntent = Intent(this,UpdateProfileActivity::class.java)
                 startActivity(updateProfileIntent)
                 true
             }
+            // log out of your account
             R.id.logout_profile_button -> {
                 val editor: SharedPreferences.Editor = pref.edit()
                 editor.putString(SignUpActivity.EMAIL_KEY, "")

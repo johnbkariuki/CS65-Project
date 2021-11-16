@@ -116,10 +116,15 @@ class UpdateProfileActivity:AppCompatActivity() {
             dialog.show()
         }
         else {
+            // if the email is changed then do the following
             if (email!=emailText.text.toString()) {
+
+                // check to see if the changed email already exists and is being used by someone else
                 mFirebaseAuth.fetchSignInMethodsForEmail(emailText.text.toString())
                     .addOnCompleteListener(OnCompleteListener<SignInMethodQueryResult?> { task ->
                         val isNewUser = task.result.signInMethods?.isEmpty()
+
+                        // if the email is not being used then save successfully
                         if (isNewUser == true) {
 
                             databaseReference.child(mUserId).child("user").child("email")
@@ -156,8 +161,9 @@ class UpdateProfileActivity:AppCompatActivity() {
                             Toast.makeText(this, SAVED_UPDATE_MESSAGE, Toast.LENGTH_LONG).show()
                             finish()
 
-                        } else {
-
+                        }
+                        // saving was unsuccessful because the new desired email address is already in use
+                        else {
                             val builder = AlertDialog.Builder(this)
                             builder.setMessage(R.string.used_email_error_message)
                             builder.setTitle(R.string.signup_error_title)
@@ -167,7 +173,9 @@ class UpdateProfileActivity:AppCompatActivity() {
                             dialog.show()
                         }
                     })
-            } else{
+            }
+            // if the email address is not being updated then save successfully
+            else{
                 databaseReference.child(mUserId).child("user").child("email")
                     .setValue(emailText.text.toString())
                 databaseReference.child(mUserId).child("user").child("username")
