@@ -691,15 +691,15 @@ class ReceiptActivity : AppCompatActivity() {
             storeToInfo(payers,receipt)
 
             // if the current user is not paying for an item still add a copy of the receipt to their receipt list
-            if(!payers.contains(mUserId)){
-                mFirebaseFirestore.collection("users").document(mUserId).get()
-                    .addOnSuccessListener {
-                        val firebaseReceiptsList: ArrayList<Receipt> = it.data!!["receipts"] as ArrayList<Receipt>
-                        firebaseReceiptsList.add(receipt)
-                        mFirebaseFirestore.collection("users").document(mUserId)
-                            .update("receipts", firebaseReceiptsList)
-                    }
-            }
+//            if(!payers.contains(mUserId)){
+//                mFirebaseFirestore.collection("users").document(mUserId).get()
+//                    .addOnSuccessListener {
+//                        val firebaseReceiptsList: ArrayList<Receipt> = it.data!!["receipts"] as ArrayList<Receipt>
+//                        firebaseReceiptsList.add(receipt)
+//                        mFirebaseFirestore.collection("users").document(mUserId)
+//                            .update("receipts", firebaseReceiptsList)
+//                    }
+//            }
         }
     }
 }
