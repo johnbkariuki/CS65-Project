@@ -166,9 +166,19 @@ class ReceiptActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
+            // launch camera instructions
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage(R.string.receipt_instructions)
+            builder.setTitle(R.string.receipt_instruction_title)
+            builder.setPositiveButton(android.R.string.ok, null)
+
+            val dialog = builder.create()
+            dialog.show()
+
             // launch camera/receipt scanner
             recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             getReceipt()
+
 
             // if displaying past receipt from history
         } else if (receiptMode == Globals.RECEIPT_HISTORY_MODE) {

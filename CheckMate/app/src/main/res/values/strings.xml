@@ -30,6 +30,7 @@
     <string name="signup_error_message">Make sure you don\'t leave anything blank!</string>
     <string name="signup_error_message2">Make sure your password is more than 6 characters long!</string>
     <string name="signup_error_title">Whoops!</string>
+    <string name="signup_phone_error_message">Please input a valid phone number.</string>
     <string name="signin_error_title">Whoops!</string>
     <string name="signin_error_message">We couldn\'t find your profile in our database. Try something else!</string>
     <string name="signin_error_message2">This password didn\'t match the one you gave us. Try something else!</string>
@@ -37,6 +38,8 @@
     <string name="signin_error_message4">We couldn\'t match your profile in our database. Try a different password or username!</string>
     <string name="used_email_error_message">That email is already in use. Please try using another one</string>
     <string name="receipt_scanning_error">There was an issue scanning your receipt please try again</string>
+    <string name="receipt_instruction_title">Instructions</string>
+    <string name="receipt_instructions">Please use the cropping tool to focus on the quantities, the items and the prices only</string>
     <string name="profile_fragment_logout">Logout</string>
     <string name="profile_fragment_save">Done</string>
     <string name="search_hint">Enter username</string>

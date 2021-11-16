@@ -76,7 +76,7 @@ class HistoryFragment : Fragment() {
                         username = it.data!!["username"].toString()
                         val phone = it.data!!["phone"].toString()
                         usernameText.text = "Username: @$username"
-                        phoneText.text = "Phone No. :$phone"
+                        phoneText.text = "Phone: $phone"
                         headerText.text =
                             "Welcome, @$username! \nHere's a look at your payment history:"
 
@@ -190,7 +190,7 @@ class HistoryFragment : Fragment() {
                         username = it.data!!["username"].toString()
                         val phone = it.data!!["phone"].toString()
                         usernameText.text = "Username: @$username"
-                        phoneText.text = "Phone No. :$phone"
+                        phoneText.text = "Phone: $phone"
                         headerText.text =
                             "Welcome, @$username! \nHere's a look at your payment history:"
 

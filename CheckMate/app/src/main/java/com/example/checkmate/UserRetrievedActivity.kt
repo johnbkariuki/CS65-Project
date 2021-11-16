@@ -66,7 +66,7 @@ class UserRetrievedActivity : AppCompatActivity() {
                         phone = value.data!!["phone"].toString()
 
                         usernameText.text = "Username: @$username"
-                        phoneText.text = "Phone No. :$phone"
+                        phoneText.text = "Phone: $phone"
                         headerText.text = "@$username's payment history:"
 
                         listAdapter = HistoryListAdapter(this, historyList)

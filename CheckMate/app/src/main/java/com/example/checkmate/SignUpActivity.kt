@@ -68,6 +68,8 @@ class SignUpActivity: AppCompatActivity() {
         val password = passwordText.text.toString().trim()
         //check phone
         val phone = phoneText.text.toString().trim()
+        // phone validation
+        val phoneRegex = "^[+]?[0-9]{10,13}$".toRegex()
 
         if (username.isEmpty() || email.isEmpty() || password.isEmpty() || phone.isEmpty()) {
             val builder = AlertDialog.Builder(this)
@@ -81,6 +83,15 @@ class SignUpActivity: AppCompatActivity() {
         else if (password.length < 6) {
             val builder = AlertDialog.Builder(this)
             builder.setMessage(R.string.signup_error_message2)
+            builder.setTitle(R.string.signup_error_title)
+            builder.setPositiveButton(android.R.string.ok, null)
+
+            val dialog = builder.create()
+            dialog.show()
+        }
+        else if (!phone.matches(phoneRegex)){
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage(R.string.signup_phone_error_message)
             builder.setTitle(R.string.signup_error_title)
             builder.setPositiveButton(android.R.string.ok, null)
 
