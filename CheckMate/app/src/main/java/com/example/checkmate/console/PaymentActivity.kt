@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.chaquo.python.Python
@@ -22,13 +23,21 @@ class PaymentActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_payment)
 
+        // get lists passed in from bundle
         val serBundle = intent.extras
-
         amountsList = serBundle?.getSerializable("amountsList") as ArrayList<Double>
         notesList = serBundle?.getSerializable("notesList") as ArrayList<String>
         idsList = serBundle?.getSerializable("idsList") as ArrayList<String>
 
-        println("debug: amountsList $amountsList")
+        // handle error message case
+        val errorText: TextView = findViewById(R.id.venmo_payment_error)
+        val errorMessage: String? = serBundle?.getString("errorMessage")
+        if(errorMessage != null) {
+            errorText.text = errorMessage
+            errorText.visibility = View.VISIBLE
+        } else {
+            errorText.visibility = View.INVISIBLE
+        }
     }
 
     fun onPaymentButtonClick(view: View) {

@@ -75,6 +75,7 @@ public class RequestActivity extends PythonConsoleActivity {
                 bundle.putSerializable("amountsList", amountsList);
                 bundle.putSerializable("notesList", notesList);
                 bundle.putSerializable("idsList", idsList);
+                bundle.putString("errorMessage", "Invalid credentials");
                 intent.putExtras(bundle);
 
                 getApplication().getApplicationContext().startActivity(intent);

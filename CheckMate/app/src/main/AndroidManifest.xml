@@ -43,7 +43,6 @@
         <activity android:name=".console.LoginActivity" android:screenOrientation="portrait"/>
         <activity android:name=".console.PaymentActivity" android:screenOrientation="portrait"/>
         <activity android:name=".console.RequestActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".console.VenmoMainActivity" android:screenOrientation="portrait"/>
         <activity android:name=".VenmoAdapter" android:screenOrientation="portrait"/>
         <activity android:name=".UserLookupActivity" android:screenOrientation="portrait" />
         <activity android:name=".UserRetrievedActivity" android:screenOrientation="portrait" />
