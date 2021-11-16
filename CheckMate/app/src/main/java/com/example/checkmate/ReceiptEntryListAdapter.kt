@@ -89,7 +89,6 @@ class ReceiptEntryListAdapter(val context: Context, var receiptList: List<Pair<S
                 payersMapStore[position] = item.title.toString()
                 _payersMap.value = payersMapStore
                 val payersMapPrint = _payersMap.value
-                println("debug: payersMap = $payersMapPrint")
                 true
             }
         }.show()

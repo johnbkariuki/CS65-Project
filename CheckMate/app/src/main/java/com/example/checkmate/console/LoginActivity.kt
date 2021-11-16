@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.chaquo.python.Python
@@ -17,6 +18,17 @@ class LoginActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        // handle error message case
+        val bundle = intent.extras
+        val errorMessage: String? = bundle?.getString("errorMessage")
+        val errorText: TextView = findViewById(R.id.venmo_login_error)
+        if(errorMessage != null) {
+            errorText.text = errorMessage
+            errorText.visibility = View.VISIBLE
+        } else {
+            errorText.visibility = View.INVISIBLE
+        }
 
         if(venmoUserSignUp) {
             val backButton = findViewById<Button>(R.id.venmoBtnBack)

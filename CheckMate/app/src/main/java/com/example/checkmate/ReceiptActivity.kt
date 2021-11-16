@@ -132,7 +132,6 @@ class ReceiptActivity : AppCompatActivity() {
             adapterEntry.payersMap.observe(this, Observer { it ->
                 // reload list with new popup displays
                 adapterEntry.notifyDataSetChanged()
-                println("debug: payersMap updated")
             })
 
             val pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
@@ -252,11 +251,9 @@ class ReceiptActivity : AppCompatActivity() {
     fun runTextRecognition(){
         if (this::receiptImage.isInitialized){
             recognizer.process(receiptImage).addOnSuccessListener {
-                println("debug: text recognition success")
                 displayReceipt(it)
             }.addOnFailureListener{
                 it.printStackTrace()
-                println("debug: text recognition failure")
             }
         }
     }
@@ -290,14 +287,11 @@ class ReceiptActivity : AppCompatActivity() {
 
         // loop through text blocks and fill out corresponding lists
         for (i in 0 until blocks.size) {
-            println("debug: --------")
             val block = blocks[i]
 
             for (j in 0 until block.lines.size) {
 
                 var line = block.lines[j]
-                val debugLine = line.text
-                println("debug: $debugLine")
                 val textType = getTextType(line.text)
 
                 // add text to pertinent list 
@@ -316,9 +310,6 @@ class ReceiptActivity : AppCompatActivity() {
                 }
             }
         }
-        println("debug:$priceList")
-        println("debug:$itemList")
-        println("debug:$quantityList")
 
         if (priceList.size == itemList.size){
             // if quantities were retrieved
@@ -346,7 +337,6 @@ class ReceiptActivity : AppCompatActivity() {
                     val price = priceList[i]
                     val item = itemList[i]
                     receiptList.add(Pair(item, price))
-                    println("Debug:$receiptList")
                 }
             }
             adapterEntry.notifyDataSetChanged()
@@ -420,9 +410,13 @@ class ReceiptActivity : AppCompatActivity() {
         storeToFirebase(payers,payerList,title, date, mUserId, priceList, itemList)
     }
 
+    // Formats receipt data to send venmo requests
     fun sendVenmoRequests() {
-        // Map for final split: key is venmo id, value is amount to be requested
-        val map: MutableMap<String, Double> = mutableMapOf()
+        // mapAmount: key is venmo id, value is amount to be requested
+        val mapAmount: MutableMap<String, Double> = mutableMapOf()
+        // mapNotes: key is venmo id, value is note for payment request
+        val mapNotes: MutableMap<String, String> = mutableMapOf()
+
         for(i in 0 until payerList.size) {
             // Get venmo id by username for each payer
             mFirebaseFirestore.collection("users")
@@ -431,41 +425,46 @@ class ReceiptActivity : AppCompatActivity() {
                     var venmoId: String = ""
                     for(x in user) {
                         venmoId = x.data!!["venmo"].toString()
-                        println("debug: venmoid in loop $venmoId")
                     }
-                    // Update amount to be paid in map
+                    // Update amount to be paid and note in maps
                     if(venmoId != "" && payerList[i] != mUsername) {
-                        if(map.containsKey(venmoId)) {
-                            println("debug: map contains key")
-                            val currentAmount = map[venmoId]
+                        if(mapAmount.containsKey(venmoId)) {
+                            // Amounts map
+                            val currentAmount = mapAmount[venmoId]
                             if (currentAmount != null) {
-                                map[venmoId] = currentAmount + priceList[i].toDouble()
+                                mapAmount[venmoId] = currentAmount + priceList[i].toDouble()
+                            }
+                            // Notes map
+                            val currentNotes = mapNotes[venmoId]
+                            if (currentNotes != null) {
+                                mapNotes[venmoId] = currentNotes + ", " + itemList[i]
                             }
                         } else {
-                            println("debug: map does not contain key")
-                            map[venmoId] = priceList[i].toDouble()
+                            mapAmount[venmoId] = priceList[i].toDouble()
+                            mapNotes[venmoId] = itemList[i]
                         }
                     }
                     // Send map to function to be called after DB fetches
                     if(i >= payerList.size-1) {
-                        tempVenmoFunction(map)
+                        startVenmoFunction(mapAmount, mapNotes)
                     }
                 }
         }
     }
 
-    fun tempVenmoFunction(map: MutableMap<String, Double>) {
+    // Starts venmo activities, passing through receipt data
+    fun startVenmoFunction(mapAmount: MutableMap<String, Double>,
+                           mapNotes: MutableMap<String, String>) {
         // List of requests' amounts, notes, ids
         val amountsList = arrayListOf<Double>()
         val notesList = arrayListOf<String>()
         val idsList = arrayListOf<String>()
-        println("debug: above map keys")
-        println("debug: map keys ${map.keys}")
-        for(key in map.keys) {
+
+        // Loop through each key
+        for(key in mapAmount.keys) {
             idsList.add(key)
-            notesList.add("CheckMate receipt")
-            amountsList.add(map[key]!!)
-            println("debug: receiptactivity $key ${map[key]!!}")
+            notesList.add(createNoteString(mapNotes[key]!!))
+            amountsList.add(mapAmount[key]!!)
         }
 
         // Pass the lists to PaymentActivity
@@ -474,10 +473,21 @@ class ReceiptActivity : AppCompatActivity() {
         bundle.putSerializable("amountsList", amountsList)
         bundle.putSerializable("notesList", notesList)
         bundle.putSerializable("idsList", idsList)
-        println("debug: amountsList $amountsList")
         intent.putExtras(bundle)
         startActivity(intent)
         finish()
+    }
+
+    // Formats item list into a CheckMate venmo request
+    fun createNoteString(str: String): String {
+        var ret = "CheckMate receipt: $str"
+
+        // Check if breaking note length limit
+        if (ret.length > 270) {
+            ret = ret.substring(0, 270) + "..."
+        }
+
+        return ret
     }
 
     // for when user submits receipt
@@ -652,7 +662,6 @@ class ReceiptActivity : AppCompatActivity() {
                     }
                 }
             }
-            println("debug1 $mutable_payersList_by_id")
 
             val receipt = Receipt(title, date, payer_id, priceList, itemList, mutable_payersList_by_id)
             storeToInfo(payers,receipt)

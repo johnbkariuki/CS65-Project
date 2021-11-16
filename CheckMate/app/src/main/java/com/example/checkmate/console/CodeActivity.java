@@ -47,6 +47,9 @@ public class CodeActivity extends PythonConsoleActivity {
             catch (PyException error) {
                 Intent intent = new Intent(getApplication().getApplicationContext(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Bundle bundle = new Bundle();
+                bundle.putString("errorMessage", "Invalid credentials");
+                intent.putExtras(bundle);
                 getApplication().getApplicationContext().startActivity(intent);
             }
         }

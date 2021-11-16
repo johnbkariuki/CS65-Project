@@ -135,9 +135,7 @@ class SignUpActivity: AppCompatActivity() {
                         // input into firestore
                         mFirebaseFirestore.collection("users").document(mUserId).set(user)
                             .addOnCompleteListener {
-                                println("debug: @$mUserId successfully added to Firestore ($mFirebaseFirestore)")
                             }.addOnFailureListener {
-                            println("debug: @$mUserId failed to be added to Firestore ($mFirebaseFirestore)")
                         }
 
                         val pref: SharedPreferences = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)

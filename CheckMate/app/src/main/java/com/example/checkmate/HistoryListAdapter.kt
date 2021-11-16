@@ -65,9 +65,6 @@ class HistoryListAdapter(val context: Context, var historyList: List<ReceiptEntr
         val translatedPayerList = Globals.Byte2ArrayList(receipt.payerList)
         val translatedPriceList = Globals.Byte2ArrayList(receipt.priceList)
 
-        println("debug:$translatedPayerList")
-        println("debug:$translatedPriceList")
-
         try {
             // calculate amount paid by user and total bill cost
             for (i in 0 until translatedPayerList.size) {

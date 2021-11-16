@@ -5,15 +5,31 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <EditText
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/sign_in"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/etUserName"
-        android:hint="venmo username/email" />
+        android:text="Sign In To Your Venmo"
+        android:textSize="35sp"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        android:layout_marginTop="100dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginBottom="50dp"
+        />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:id="@+id/etUserName"
+        android:hint="venmo email" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         android:id="@+id/etPassword"
         android:inputType="textPassword"
         android:hint="venmo password" />
@@ -21,6 +37,9 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:id="@+id/btnLogin"
         android:onClick="onPaymentButtonClick"
         android:text="login" />
@@ -28,7 +47,21 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:text="back"
         android:onClick="onPaymentBackClick" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        android:layout_margin="30dp"
+        android:id="@+id/venmo_payment_error"
+        android:visibility="invisible"
+        />
 
 </LinearLayout>

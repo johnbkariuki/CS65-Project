@@ -25,29 +25,29 @@ class VenmoAdapter: AppCompatActivity() {
     private var password = ""
 
     override fun onCreate(bundle: Bundle?) {
-        println("debug: venmoadapter oncreate")
         super.onCreate(bundle)
 
+        // get venmoId or unsuccessful request ids from bundle
         val strBundle = intent.extras
         val venmoId: String? = strBundle?.getString("venmoId")
         val unsuccessful: String? = strBundle?.getString("unsuccessful")
 
+        // handle venmo/unsuccessful
         if(venmoId != null) {
-            println("debug: venmoid not null")
             addId(venmoId)
         } else if(unsuccessful != null) {
             handleUnsuccessful(unsuccessful)
         }
+        // reset signup flag
         if(venmoUserSignUp) {
-            startActivity(Intent(this, MainActivity::class.java))
             venmoUserSignUp = false
-        } else {
-            // discuss with jason
-            startActivity(Intent(this, ProfileActivity::class.java))
         }
+        // go to main activity
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 
+    // Add user's Venmo ID to database
     private fun addId(str: String) {
         // grab existing email and pswd
         pref = getSharedPreferences(Globals.MY_PREFERENCES, Context.MODE_PRIVATE)
@@ -74,13 +74,20 @@ class VenmoAdapter: AppCompatActivity() {
                 "venmo" to str     // String is venmo id
             )
         )
-        println("debug: venmo ID updated $str")
-        Toast.makeText(this, "Venmo ID updated $str", Toast.LENGTH_SHORT).show()
     }
 
+    // Alert user if payment requests were successful or not
     private fun handleUnsuccessful(str: String) {
-        println("debug: unsuccessful: $str")
-        Toast.makeText(this, "Unsuccessful ids: $str", Toast.LENGTH_LONG).show()
+        // Unsuccessful
+        if(str == "[]") {
+            // Count number of unsuccessful ids if request(s) failed
+            val count = str.filter { it == ',' }.count()
+            Toast.makeText(this, "$count requests failed", Toast.LENGTH_LONG).show()
+        }
+        // Successful
+        else {
+            Toast.makeText(this, "Requests sent", Toast.LENGTH_LONG).show()
+        }
     }
 
 }
