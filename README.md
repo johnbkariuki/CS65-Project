@@ -8,4 +8,10 @@ We are deeply indebted to mmohades' Venmo wrapper and the Chaquopy Python SDK fo
 
 Venmo API: https://github.com/mmohades/Venmo
 
+Chaquopy: https://chaquo.com/chaquopy/
+
 Chaquopy-console: https://github.com/chaquo/chaquopy-console
+
+Specific chaquopy-console reference: https://github.com/chaquo/chaquopy-console/tree/master/app/src/main/java/com/chaquo/python
+
+Another: https://github.com/chaquo/chaquopy-console/tree/master/app/src/main/python/chaquopy
